@@ -33,14 +33,32 @@ func (a Args) GetString(key string, defaultValue ...string) string {
 	return value
 }
 
-func (a Args) GetInt(key string) int {
+func (a Args) GetInt(key string, defaultValue ...int) int {
+	if defaultValue == nil || len(defaultValue) == 0 {
+		defaultValue = []int{0}
+	}
 	v, ok := a[key]
 	if !ok {
-		return 0
+		return defaultValue[0]
 	}
 	value, ok := v.(int)
 	if !ok {
-		return 0
+		return defaultValue[0]
+	}
+	return value
+}
+
+func (a Args) GetMap(key string, defaultValue ...map[string]interface{}) map[string]interface{} {
+	if defaultValue == nil || len(defaultValue) == 0 {
+		defaultValue = make([]map[string]interface{}, 1)
+	}
+	v, ok := a[key]
+	if !ok {
+		return defaultValue[0]
+	}
+	value, ok := v.(map[string]interface{})
+	if !ok {
+		return defaultValue[0]
 	}
 	return value
 }

@@ -1,5 +1,13 @@
 package json
 
+const (
+	Url     = "url"
+	Method  = "method"
+	Timeout = "timeout"
+	Headers = "headers"
+	Payload = "payload"
+)
+
 // ValidateTwoValueOperators validates is_greater,is_lower,is_equal
 func ValidateTwoValueOperators(action Action) ValidationErrors {
 	errors := make(ValidationErrors, 0)
@@ -11,5 +19,35 @@ func ValidateTwoValueOperators(action Action) ValidationErrors {
 	if compareTo == "" {
 		errors.Add(compareToKey, []string{"is mandatory"})
 	}
+	return errors
+}
+
+func ValidateHttpAction(action Action) ValidationErrors {
+	errors := make(ValidationErrors, 0)
+	stringArgs := []string{
+		Url,
+		Method,
+		Timeout,
+	}
+
+	mapArgs := []string{
+		Headers,
+		Payload,
+	}
+
+	for _, arg := range stringArgs {
+		value := action.Args.GetString(arg)
+		if value == "" {
+			errors.Add(arg, []string{"is mandatory"})
+		}
+	}
+
+	for _, arg := range mapArgs {
+		value := action.Args.GetMap(arg)
+		if value == nil {
+			errors.Add(arg, []string{"is mandatory"})
+		}
+	}
+
 	return errors
 }

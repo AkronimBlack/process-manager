@@ -173,7 +173,6 @@ func (p *Parser) ValidateAction(action Action) ValidationErrors {
 func (p *Parser) Execute(ctx context.Context) *Session {
 	startAction := p.actions[StartNode]
 	firstAction := p.actions[startAction.OnSuccess]
-
 	handler := p.ActionHandler(firstAction.ActionType)
 	if handler == nil {
 		return nil

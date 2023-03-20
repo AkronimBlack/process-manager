@@ -62,3 +62,69 @@ func TestValidateIsGraterReturnsErrorOnInvalidAction(t *testing.T) {
 		t.Logf("validation errors \n%s", shared.ToJsonPrettyString(errors))
 	}
 }
+
+func TestValidateHttpAction(t *testing.T) {
+	action := Action{
+		ActionType: HttpAction,
+		Args: map[string]interface{}{
+			Url:     "value",
+			Method:  "value",
+			Timeout: "value",
+			Headers: map[string]interface{}{
+				"test": "test",
+			},
+			Payload: map[string]interface{}{
+				"test_1": "test_1",
+				"test_2": "test_2",
+				"test_3": "test_3",
+			},
+		},
+		OnSuccess: "test_1",
+		OnFailure: "test_2",
+	}
+	errors := ValidateHttpAction(action)
+	if !errors.IsValid() {
+		t.Error("reports invalid on valid args")
+	}
+	t.Logf("validation errors \n%s", shared.ToJsonPrettyString(errors))
+}
+
+func TestValidateHttpActionFail(t *testing.T) {
+	actions := []Action{
+		{
+			ActionType: HttpAction,
+			Args: map[string]interface{}{
+				Url:     "value",
+				Method:  "value",
+				Timeout: "value",
+				Headers: map[string]interface{}{
+					"test": "test",
+				},
+			},
+			OnSuccess: "test_1",
+			OnFailure: "test_2",
+		},
+		{
+			ActionType: HttpAction,
+			Args: map[string]interface{}{
+				Url:     "value",
+				Method:  "value",
+				Timeout: "value",
+				Payload: map[string]interface{}{
+					"test_1": "test_1",
+					"test_2": "test_2",
+					"test_3": "test_3",
+				},
+			},
+			OnSuccess: "test_1",
+			OnFailure: "test_2",
+		},
+	}
+	for _, action := range actions {
+		errors := ValidateHttpAction(action)
+		if errors.IsValid() {
+			t.Error("reports valid on invalid args")
+		}
+		t.Logf("validation errors \n%s", shared.ToJsonPrettyString(errors))
+	}
+}

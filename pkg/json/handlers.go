@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	IsGreater = "is_greater"
-	IsLower   = "is_lower"
-	IsEqual   = "is_equal"
+	IsGreater  = "is_greater"
+	IsLower    = "is_lower"
+	IsEqual    = "is_equal"
+	HttpAction = "http"
 
 	comparingKey = "comparing"
 	compareToKey = "compare_to"
