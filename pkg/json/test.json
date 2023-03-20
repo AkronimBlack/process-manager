@@ -1,0 +1,28 @@
+{
+  "test_id_1": {
+    "type": "sum",
+    "args": {
+      "arg_1": [
+        {
+          "sub_arg_1": "value"
+        }
+      ]
+    },
+    "on_success": "test_id_2",
+    "on_failure": "test_id_3"
+  },
+  "test_id_2": {
+    "type": "subtract",
+    "args": {
+      "arg_2": "value 2"
+    }
+  },
+  "test_id_3": {
+    "type": "multiply",
+    "args": {
+      "arg_3": {
+        "sub_arg_3": "value 3"
+      }
+    }
+  }
+}
