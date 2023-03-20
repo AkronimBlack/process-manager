@@ -69,7 +69,7 @@ func TestValidateHttpAction(t *testing.T) {
 		Args: map[string]interface{}{
 			Url:     "value",
 			Method:  "value",
-			Timeout: "value",
+			Timeout: 100,
 			Headers: map[string]interface{}{
 				"test": "test",
 			},
@@ -78,6 +78,7 @@ func TestValidateHttpAction(t *testing.T) {
 				"test_2": "test_2",
 				"test_3": "test_3",
 			},
+			result: "http_action_result",
 		},
 		OnSuccess: "test_1",
 		OnFailure: "test_2",

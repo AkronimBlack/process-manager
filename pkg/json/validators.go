@@ -27,6 +27,10 @@ func ValidateHttpAction(action Action) ValidationErrors {
 	stringArgs := []string{
 		Url,
 		Method,
+		result,
+	}
+
+	intArgs := []string{
 		Timeout,
 	}
 
@@ -45,6 +49,13 @@ func ValidateHttpAction(action Action) ValidationErrors {
 	for _, arg := range mapArgs {
 		value := action.Args.GetMap(arg)
 		if value == nil {
+			errors.Add(arg, []string{"is mandatory"})
+		}
+	}
+
+	for _, arg := range intArgs {
+		value := action.Args.GetInt(arg)
+		if value == 0 {
 			errors.Add(arg, []string{"is mandatory"})
 		}
 	}

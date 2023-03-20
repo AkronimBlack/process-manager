@@ -137,3 +137,33 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 		t.Logf("correct evaluation of 10==11, %v", session.ValueOf("test_result").(bool))
 	}
 }
+
+func TestHttpHandler(t *testing.T) {
+	action := Action{
+		ActionType: HttpAction,
+		Args: map[string]interface{}{
+			Url:     "https://api.myip.com",
+			Method:  "get",
+			Timeout: 400,
+			Headers: map[string]interface{}{},
+			Payload: map[string]interface{}{},
+			result:  "http_action_result",
+		},
+		OnSuccess: "test_1",
+		OnFailure: "test_2",
+	}
+	session := &Session{
+		values:          map[string]interface{}{},
+		executedActions: []Action{},
+	}
+	HttpHandler(context.Background(), action, session)
+	httpActionError := session.StringValueOf("http_action_result.error", "")
+	if httpActionError != "" {
+		t.Errorf("http action failed with error %s", httpActionError)
+		return
+	}
+	httpResult := session.ValueOf("http_action_result")
+	if httpResult == nil {
+		t.Error("http action result empty")
+	}
+}
