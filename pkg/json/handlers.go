@@ -64,3 +64,7 @@ func IsEqualHandler(ctx context.Context, action Action, session *Session) {
 
 	session.Set(resultVariable, comparingValue == compareToValue)
 }
+
+func HttpHandler(ctx context.Context, action Action, session *Session) {
+
+}

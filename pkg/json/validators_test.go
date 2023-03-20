@@ -1,7 +1,7 @@
 package json
 
 import (
-	"github.com/AkronimBlack/file-parser/shared"
+	"github.com/AkronimBlack/file-executor/shared"
 	"testing"
 )
 
