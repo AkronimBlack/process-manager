@@ -9,6 +9,10 @@ import (
 	"sync"
 )
 
+const (
+	StartNode = "start_node"
+)
+
 type Actions map[string]Action
 
 type Parser struct {
@@ -97,10 +101,21 @@ func (p *Parser) Validate() ValidateErrors {
 
 func (p *Parser) validate(actions Actions) ValidateErrors {
 	errors := make(ValidateErrors)
+	var hasStartNode bool
 	for id, action := range actions {
+		if action.ActionType == StartNode {
+			hasStartNode = true
+		}
 		actionErrors := p.ValidateAction(action)
 		if !actionErrors.IsValid() {
 			errors[id] = actionErrors
+		}
+	}
+	if !hasStartNode {
+		errors[StartNode] = ValidationErrors{
+			StartNode: {
+				"start_node is required",
+			},
 		}
 	}
 	return errors
@@ -132,6 +147,13 @@ func (e ValidationErrors) IsValid() bool {
 
 func (p *Parser) ValidateAction(action Action) ValidationErrors {
 	errors := make(ValidationErrors, 0)
+	if action.ActionType == StartNode {
+		if action.OnSuccess == "" {
+			errors.Add("on_success", []string{"on_success is a required field"})
+		}
+		return errors
+	}
+
 	if action.ActionType == "" {
 		errors.Add("type", []string{"type is a required field"})
 	}
@@ -149,12 +171,13 @@ func (p *Parser) ValidateAction(action Action) ValidationErrors {
 }
 
 func (p *Parser) Execute(ctx context.Context) *Session {
-	for _, action := range p.actions {
-		handler := p.ActionHandler(action.ActionType)
-		if handler == nil {
-			continue
-		}
-		handler(ctx, action, p.session)
+	startAction := p.actions[StartNode]
+	firstAction := p.actions[startAction.OnSuccess]
+
+	handler := p.ActionHandler(firstAction.ActionType)
+	if handler == nil {
+		return nil
 	}
+	handler(ctx, firstAction, p.session)
 	return p.session
 }

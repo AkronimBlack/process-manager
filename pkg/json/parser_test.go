@@ -82,6 +82,10 @@ func TestParser_ValidateActionReturnsErrorsOnInvalidAction(t *testing.T) {
 
 func TestParser_validate(t *testing.T) {
 	actions := map[string]Action{
+		StartNode: {
+			ActionType: StartNode,
+			OnSuccess:  "test_id_1",
+		},
 		"test_id_1": {
 			ActionType: "sum",
 			Args:       map[string]interface{}{},
@@ -110,6 +114,10 @@ func TestParser_validate(t *testing.T) {
 
 func TestParser_validateReturnsErrorsOnInvalidAction(t *testing.T) {
 	actions := map[string]Action{
+		StartNode: {
+			ActionType: StartNode,
+			OnSuccess:  "test_id_1",
+		},
 		"test_id_1": {
 			ActionType: "sum",
 			Args:       map[string]interface{}{},
@@ -139,6 +147,10 @@ func TestParser_validateReturnsErrorsOnInvalidAction(t *testing.T) {
 
 func TestParser_Validate(t *testing.T) {
 	actions := map[string]Action{
+		StartNode: {
+			ActionType: StartNode,
+			OnSuccess:  "test_id_1",
+		},
 		"test_id_1": {
 			ActionType: "sum",
 			Args:       map[string]interface{}{},
@@ -189,6 +201,10 @@ func TestParser_ValidateReturnsErrorsFromCustomAndDefaultValidation(t *testing.T
 
 func TestParser_Execute(t *testing.T) {
 	actions := map[string]Action{
+		StartNode: {
+			ActionType: StartNode,
+			OnSuccess:  "test_id_1",
+		},
 		"test_id_1": {
 			ActionType: IsGreater,
 			Args: map[string]interface{}{

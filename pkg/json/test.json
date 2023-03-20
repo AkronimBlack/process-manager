@@ -1,4 +1,9 @@
 {
+  "start_node": {
+    "type": "start_node",
+    "args": {},
+    "on_success": "test_id_1"
+  },
   "test_id_1": {
     "type": "sum",
     "args": {
