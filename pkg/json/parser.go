@@ -1,6 +1,7 @@
 package json
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -12,13 +13,18 @@ type Actions map[string]Action
 
 type Parser struct {
 	handlers   map[string]Handler
-	lock       sync.Mutex
-	actions    Actions
 	validators map[string]Validator
-	session    *Session
+
+	actions Actions
+
+	session *Session
+
+	lock sync.Mutex
 }
 
 func (p *Parser) SetActions(actions Actions) {
+	p.lock.Lock()
+	defer p.lock.Unlock()
 	p.actions = actions
 }
 
@@ -43,6 +49,14 @@ func (p *Parser) AddValidator(action string, validator Validator) {
 
 func (p *Parser) ActionValidator(action string) Validator {
 	v, ok := p.validators[action]
+	if !ok {
+		return nil
+	}
+	return v
+}
+
+func (p *Parser) ActionHandler(action string) Handler {
+	v, ok := p.handlers[action]
 	if !ok {
 		return nil
 	}
@@ -132,4 +146,15 @@ func (p *Parser) ValidateAction(action Action) ValidationErrors {
 		errors.Merge(actionValidator(action))
 	}
 	return errors
+}
+
+func (p *Parser) Execute(ctx context.Context) *Session {
+	for _, action := range p.actions {
+		handler := p.ActionHandler(action.ActionType)
+		if handler == nil {
+			continue
+		}
+		handler(ctx, action, p.session)
+	}
+	return p.session
 }

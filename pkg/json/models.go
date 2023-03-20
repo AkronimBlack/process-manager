@@ -54,7 +54,7 @@ type Action struct {
 
 type Session struct {
 	values          map[string]interface{}
-	executedActions map[string]Action
+	executedActions []Action
 	lock            sync.Mutex
 }
 

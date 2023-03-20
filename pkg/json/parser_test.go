@@ -1,6 +1,7 @@
 package json
 
 import (
+	"context"
 	"github.com/AkronimBlack/file-executor/shared"
 	"testing"
 )
@@ -184,4 +185,38 @@ func TestParser_ValidateReturnsErrorsFromCustomAndDefaultValidation(t *testing.T
 		t.Error("did not find errors on an invalid action")
 	}
 	t.Logf("validation errors\n%s", shared.ToJsonPrettyString(validationErrors))
+}
+
+func TestParser_Execute(t *testing.T) {
+	actions := map[string]Action{
+		"test_id_1": {
+			ActionType: IsGreater,
+			Args: map[string]interface{}{
+				comparingKey: "10",
+				compareToKey: "11",
+				result:       "test_result",
+			},
+			OnSuccess: "test_1",
+			OnFailure: "test_2",
+		},
+	}
+	parser := Parser{
+		handlers: map[string]Handler{
+			IsGreater: IsGreaterHandler,
+		},
+		validators: map[string]Validator{
+			IsGreater: ValidateTwoValueOperators,
+		},
+		session: &Session{
+			values:          map[string]interface{}{},
+			executedActions: []Action{},
+		},
+	}
+	parser.SetActions(actions)
+	validationErrors := parser.Validate()
+	if !validationErrors.IsValid() {
+		t.Errorf("found validation errors on valid action\n%s", shared.ToJsonPrettyString(validationErrors))
+	}
+	session := parser.Execute(context.Background())
+	t.Log(shared.ToJsonPrettyString(NewSessionDto(session)))
 }

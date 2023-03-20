@@ -51,7 +51,7 @@ func TestIsGreaterHandler(t *testing.T) {
 	for _, action := range actions {
 		session := &Session{
 			values:          map[string]interface{}{},
-			executedActions: map[string]Action{},
+			executedActions: []Action{},
 		}
 		IsGreaterHandler(context.Background(), action, session)
 		if session.ValueOf("test_result").(bool) {
@@ -89,7 +89,7 @@ func TestIsLowerHandler(t *testing.T) {
 	for _, action := range actions {
 		session := &Session{
 			values:          map[string]interface{}{},
-			executedActions: map[string]Action{},
+			executedActions: []Action{},
 		}
 		IsLowerHandler(context.Background(), action, session)
 		if !session.ValueOf("test_result").(bool) {
@@ -127,7 +127,7 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 	for _, action := range actions {
 		session := &Session{
 			values:          map[string]interface{}{},
-			executedActions: map[string]Action{},
+			executedActions: []Action{},
 		}
 		IsEqualHandler(context.Background(), action, session)
 		if !session.ValueOf("test_result").(bool) {
