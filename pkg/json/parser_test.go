@@ -218,5 +218,9 @@ func TestParser_Execute(t *testing.T) {
 		t.Errorf("found validation errors on valid action\n%s", shared.ToJsonPrettyString(validationErrors))
 	}
 	session := parser.Execute(context.Background())
+	if session == nil {
+		t.Error("session is nil")
+		return
+	}
 	t.Log(shared.ToJsonPrettyString(NewSessionDto(session)))
 }
