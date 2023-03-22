@@ -29,16 +29,6 @@ func TestIsGreaterHandler(t *testing.T) {
 		{
 			ActionType: IsGreater,
 			Args: map[string]interface{}{
-				comparingKey: "10",
-				compareToKey: "11",
-				result:       "test_result",
-			},
-			OnSuccess: "",
-			OnFailure: "",
-		},
-		{
-			ActionType: IsGreater,
-			Args: map[string]interface{}{
 				comparingKey: 10,
 				compareToKey: 11,
 				result:       "test_result",
@@ -64,16 +54,6 @@ func TestIsGreaterHandler(t *testing.T) {
 
 func TestIsLowerHandler(t *testing.T) {
 	actions := []Action{
-		{
-			ActionType: IsLower,
-			Args: map[string]interface{}{
-				comparingKey: "10",
-				compareToKey: "11",
-				result:       "test_result",
-			},
-			OnSuccess: "",
-			OnFailure: "",
-		},
 		{
 			ActionType: IsLower,
 			Args: map[string]interface{}{
@@ -105,16 +85,6 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 		{
 			ActionType: IsEqual,
 			Args: map[string]interface{}{
-				comparingKey: "10",
-				compareToKey: "10",
-				result:       "test_result",
-			},
-			OnSuccess: "",
-			OnFailure: "",
-		},
-		{
-			ActionType: IsEqual,
-			Args: map[string]interface{}{
 				comparingKey: 10,
 				compareToKey: 10,
 				result:       "test_result",
@@ -142,12 +112,12 @@ func TestHttpHandler(t *testing.T) {
 	action := Action{
 		ActionType: HttpAction,
 		Args: map[string]interface{}{
-			Url:     "https://api.myip.com",
-			Method:  "get",
-			Timeout: 400,
-			Headers: map[string]interface{}{},
-			Payload: map[string]interface{}{},
-			result:  "http_action_result",
+			"url":     "https://api.myip.com",
+			"method":  "get",
+			"timeout": 400,
+			"headers": map[string]interface{}{},
+			"payload": map[string]interface{}{},
+			result:    "http_action_result",
 		},
 		OnSuccess: "test_1",
 		OnFailure: "test_2",

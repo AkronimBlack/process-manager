@@ -178,27 +178,6 @@ func TestParser_Validate(t *testing.T) {
 	}
 }
 
-func TestParser_ValidateReturnsErrorsFromCustomAndDefaultValidation(t *testing.T) {
-	actions := map[string]Action{
-		"test_id_1": {
-			ActionType: "is_greater",
-			Args:       map[string]interface{}{},
-			OnSuccess:  "",
-			OnFailure:  "test_id",
-		},
-	}
-	parser := Parser{
-		validators: map[string]Validator{},
-	}
-	parser.AddValidator("is_greater", ValidateTwoValueOperators)
-	parser.SetActions(actions)
-	validationErrors := parser.Validate()
-	if validationErrors.IsValid() {
-		t.Error("did not find errors on an invalid action")
-	}
-	t.Logf("validation errors\n%s", shared.ToJsonPrettyString(validationErrors))
-}
-
 func TestParser_Execute(t *testing.T) {
 	actions := map[string]Action{
 		StartNode: {
@@ -219,9 +198,6 @@ func TestParser_Execute(t *testing.T) {
 	parser := Parser{
 		handlers: map[string]Handler{
 			IsGreater: IsGreaterHandler,
-		},
-		validators: map[string]Validator{
-			IsGreater: ValidateTwoValueOperators,
 		},
 		session: &Session{
 			values:          map[string]interface{}{},

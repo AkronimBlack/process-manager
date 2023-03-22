@@ -16,8 +16,7 @@ const (
 type Actions map[string]Action
 
 type Parser struct {
-	handlers   map[string]Handler
-	validators map[string]Validator
+	handlers map[string]Handler
 
 	actions Actions
 
@@ -43,20 +42,6 @@ func (p *Parser) AddHandler(action string, handler Handler) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	p.handlers[action] = handler
-}
-
-func (p *Parser) AddValidator(action string, validator Validator) {
-	p.lock.Lock()
-	defer p.lock.Unlock()
-	p.validators[action] = validator
-}
-
-func (p *Parser) ActionValidator(action string) Validator {
-	v, ok := p.validators[action]
-	if !ok {
-		return nil
-	}
-	return v
 }
 
 func (p *Parser) ActionHandler(action string) Handler {
@@ -162,10 +147,6 @@ func (p *Parser) ValidateAction(action Action) ValidationErrors {
 	}
 	if action.OnFailure == "" {
 		errors.Add("on_failure", []string{"on_failure is a required field"})
-	}
-	actionValidator := p.ActionValidator(action.ActionType)
-	if actionValidator != nil {
-		errors.Merge(actionValidator(action))
 	}
 	return errors
 }

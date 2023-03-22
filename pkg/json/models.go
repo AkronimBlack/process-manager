@@ -2,15 +2,14 @@ package json
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/AkronimBlack/file-executor/shared"
 	"github.com/tidwall/gjson"
 	"strconv"
 	"sync"
 )
 
-type Handler func(ctx context.Context, action Action, session *Session)
-
-type Validator func(action Action) ValidationErrors
+type Handler func(ctx context.Context, action Action, session *Session) error
 
 type Args map[string]interface{}
 
@@ -31,6 +30,11 @@ func (a Args) GetString(key string, defaultValue ...string) string {
 		return defaultValue[0]
 	}
 	return value
+}
+
+// Bind unpack args into a target struct.
+func (a Args) Bind(target interface{}) error {
+	return json.Unmarshal(shared.ToJsonByte(a), &target)
 }
 
 func (a Args) GetInt(key string, defaultValue ...int) int {

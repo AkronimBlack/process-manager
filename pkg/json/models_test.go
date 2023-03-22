@@ -51,3 +51,29 @@ func TestArgs_GetMapReturnsDefault(t *testing.T) {
 		t.Errorf("maps not the same\n expected: %s\n got: %s", shared.ToJsonPrettyString(defaultMap), shared.ToJsonPrettyString(subMap))
 	}
 }
+
+func TestArgs_Bind(t *testing.T) {
+	args := Args{
+		"key_1": "value",
+		"key_2": map[string]string{
+			"test": "test",
+		},
+		"key_3": []string{
+			"test_1", "test_2", "test_3",
+		},
+	}
+
+	type test struct {
+		Key1 string            `json:"key_1"`
+		Key2 map[string]string `json:"key_2"`
+		Key3 []string          `json:"key_3"`
+	}
+	v := test{}
+
+	err := args.Bind(&v)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	t.Log(shared.ToJsonPrettyString(v))
+}

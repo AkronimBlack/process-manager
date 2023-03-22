@@ -33,77 +33,111 @@ func CleanPlaceHolder(value string) string {
 	return strings.TrimSpace(strings.TrimRight(strings.TrimLeft(value, "{{"), "}}"))
 }
 
-func IsGreaterHandler(ctx context.Context, action Action, session *Session) {
-	resultVariable := action.Args.GetString(result, fmt.Sprintf("%s.result", action.ActionType))
-
-	comparing := action.Args.GetString(comparingKey)
-	comparingValue := session.PlaceholderOrIntValue(comparing)
-
-	compareTo := action.Args.GetString(compareToKey)
-	compareToValue := session.PlaceholderOrIntValue(compareTo)
-
-	session.Set(resultVariable, comparingValue > compareToValue)
+type ResultArgs struct {
+	Result string `json:"result"`
 }
 
-func IsLowerHandler(ctx context.Context, action Action, session *Session) {
-	resultVariable := action.Args.GetString(result, fmt.Sprintf("%s.result", action.ActionType))
-	comparing := action.Args.Get(comparingKey)
-	comparingValue := session.PlaceholderOrIntValue(comparing)
-
-	compareTo := action.Args.Get(compareToKey)
-	compareToValue := session.PlaceholderOrIntValue(compareTo)
-	session.Set(resultVariable, comparingValue < compareToValue)
+func (a ResultArgs) ResultVariable(actionType string) string {
+	if a.Result == "" {
+		return fmt.Sprintf("%s.result", actionType)
+	}
+	return a.Result
 }
 
-func IsEqualHandler(ctx context.Context, action Action, session *Session) {
-	resultVariable := action.Args.GetString(result, fmt.Sprintf("%s.result", action.ActionType))
-
-	comparing := action.Args.Get(comparingKey)
-	comparingValue := session.PlaceholderOrIntValue(comparing)
-
-	compareTo := action.Args.Get(compareToKey)
-	compareToValue := session.PlaceholderOrIntValue(compareTo)
-
-	session.Set(resultVariable, comparingValue == compareToValue)
+type OperatorArgs struct {
+	ResultArgs
+	Comparing int `json:"comparing"`
+	CompareTo int `json:"compare_to"`
 }
 
-func HttpHandler(ctx context.Context, action Action, session *Session) {
-	targetUrl := action.Args.GetString(Url)
-	resultVariable := action.Args.GetString(result, fmt.Sprintf("%s.result", action.ActionType))
-	method := strings.ToUpper(action.Args.GetString(Method))
-	timeout := action.Args.GetInt(Timeout)
-
-	_, err := url.ParseRequestURI(targetUrl)
+func IsGreaterHandler(ctx context.Context, action Action, session *Session) error {
+	operatorArgs := OperatorArgs{}
+	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
-		session.Set(resultVariable, map[string]interface{}{
+		return err
+	}
+	session.Set(
+		operatorArgs.ResultVariable(action.ActionType),
+		session.PlaceholderOrIntValue(operatorArgs.Comparing) > session.PlaceholderOrIntValue(operatorArgs.CompareTo),
+	)
+	return nil
+}
+
+func IsLowerHandler(ctx context.Context, action Action, session *Session) error {
+	operatorArgs := OperatorArgs{}
+	err := action.Args.Bind(&operatorArgs)
+	if err != nil {
+		return err
+	}
+	session.Set(
+		operatorArgs.ResultVariable(action.ActionType),
+		session.PlaceholderOrIntValue(operatorArgs.Comparing) < session.PlaceholderOrIntValue(operatorArgs.CompareTo),
+	)
+	return nil
+}
+
+func IsEqualHandler(ctx context.Context, action Action, session *Session) error {
+	operatorArgs := OperatorArgs{}
+	err := action.Args.Bind(&operatorArgs)
+	if err != nil {
+		return err
+	}
+	session.Set(
+		operatorArgs.ResultVariable(action.ActionType),
+		session.PlaceholderOrIntValue(operatorArgs.Comparing) == session.PlaceholderOrIntValue(operatorArgs.CompareTo),
+	)
+	return nil
+}
+
+type HttpHandlerArgs struct {
+	ResultArgs
+	Url        string `json:"url"`
+	HttpMethod string `json:"method"`
+	Timeout    int    `json:"timeout"`
+}
+
+func (h HttpHandlerArgs) Method() string {
+	return strings.ToUpper(h.HttpMethod)
+}
+
+func HttpHandler(ctx context.Context, action Action, session *Session) error {
+	httpArgs := HttpHandlerArgs{}
+	err := action.Args.Bind(&httpArgs)
+	if err != nil {
+		return err
+	}
+	_, err = url.ParseRequestURI(httpArgs.Url)
+	if err != nil {
+		session.Set(httpArgs.ResultVariable(action.ActionType), map[string]interface{}{
 			"error": err.Error(),
 		})
-		return
+		return err
 	}
 
 	var req *http.Request
-	req, err = http.NewRequest(method, targetUrl, nil)
+	req, err = http.NewRequest(httpArgs.Method(), httpArgs.Url, nil)
 	client := &http.Client{}
 
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Millisecond)
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(httpArgs.Timeout)*time.Millisecond)
 	defer cancel()
 	resp, err := client.Do(req.WithContext(ctx))
 	if err != nil {
-		session.Set(resultVariable, map[string]interface{}{
+		session.Set(httpArgs.ResultVariable(action.ActionType), map[string]interface{}{
 			"error": err.Error(),
 		})
-		return
+		return err
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		session.Set(resultVariable, map[string]interface{}{
+		session.Set(httpArgs.ResultVariable(action.ActionType), map[string]interface{}{
 			"error": err.Error(),
 		})
-		return
+		return err
 	}
-	session.Set(resultVariable, map[string]interface{}{
+	session.Set(httpArgs.ResultVariable(action.ActionType), map[string]interface{}{
 		"status":      resp.Status,
 		"status_code": resp.StatusCode,
 		"response":    string(body),
 	})
+	return nil
 }
