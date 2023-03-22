@@ -43,7 +43,11 @@ func TestIsGreaterHandler(t *testing.T) {
 			values:          map[string]interface{}{},
 			executedActions: []Action{},
 		}
-		IsGreaterHandler(context.Background(), action, session)
+		err := IsGreaterHandler(context.Background(), action, session)
+		if err != nil {
+			t.Errorf("error while executing handler: %s", err.Error())
+			return
+		}
 		if session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10>11, %v", session.ValueOf("test_result").(bool))
 			return
@@ -71,7 +75,11 @@ func TestIsLowerHandler(t *testing.T) {
 			values:          map[string]interface{}{},
 			executedActions: []Action{},
 		}
-		IsLowerHandler(context.Background(), action, session)
+		err := IsLowerHandler(context.Background(), action, session)
+		if err != nil {
+			t.Errorf("error while executing handler: %s", err.Error())
+			return
+		}
 		if !session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10<11, %v", session.ValueOf("test_result").(bool))
 			return
@@ -99,7 +107,11 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 			values:          map[string]interface{}{},
 			executedActions: []Action{},
 		}
-		IsEqualHandler(context.Background(), action, session)
+		err := IsEqualHandler(context.Background(), action, session)
+		if err != nil {
+			t.Errorf("error while executing handler: %s", err.Error())
+			return
+		}
 		if !session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10==11, %v", session.ValueOf("test_result").(bool))
 			return
@@ -126,7 +138,11 @@ func TestHttpHandler(t *testing.T) {
 		values:          map[string]interface{}{},
 		executedActions: []Action{},
 	}
-	HttpHandler(context.Background(), action, session)
+	err := HttpHandler(context.Background(), action, session)
+	if err != nil {
+		t.Errorf("error while executing handler: %s", err.Error())
+		return
+	}
 	httpActionError := session.StringValueOf("http_action_result.error", "")
 	if httpActionError != "" {
 		t.Errorf("http action failed with error %s", httpActionError)
