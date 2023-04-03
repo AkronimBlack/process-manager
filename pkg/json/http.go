@@ -44,7 +44,16 @@ func (p *ParserHttpHandler) GetSessions(ctx *gin.Context) {
 }
 
 func (p *ParserHttpHandler) StartSession(ctx *gin.Context) {
-	sessionUuid := p.parser.Execute(context.Background())
+	var data map[string]interface{}
+	if err := ctx.BindJSON(&data); err != nil {
+		ctx.JSON(
+			http.StatusUnprocessableEntity,
+			MessageResponse{Message: err.Error()},
+		)
+		return
+	}
+
+	sessionUuid := p.parser.Execute(context.Background(), data)
 	ctx.JSON(
 		http.StatusCreated,
 		MessageResponse{Message: sessionUuid},

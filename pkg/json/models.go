@@ -80,14 +80,16 @@ type Session struct {
 	Uuid            string
 	values          map[string]interface{}
 	executedActions []*Action
+	inputData       map[string]interface{}
 	lock            sync.Mutex
 }
 
-func NewSession() *Session {
+func NewSession(data map[string]interface{}) *Session {
 	return &Session{
 		Uuid:            uuid.NewString(),
 		values:          make(map[string]interface{}),
 		executedActions: make([]*Action, 0),
+		inputData:       data,
 	}
 }
 

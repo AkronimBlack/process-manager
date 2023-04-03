@@ -228,7 +228,10 @@ func TestParser_Execute(t *testing.T) {
 	if !validationErrors.IsValid() {
 		t.Errorf("found validation errors on valid action\n%s", shared.ToJsonPrettyString(validationErrors))
 	}
-	sessionUuid := parser.Execute(context.Background())
+	data := map[string]interface{}{
+		"data": "data",
+	}
+	sessionUuid := parser.Execute(context.Background(), data)
 	if sessionUuid == "" {
 		t.Error("session_uuid is empty")
 		return

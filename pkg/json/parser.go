@@ -165,8 +165,8 @@ func (p *Parser) ValidateAction(action *Action) ValidationErrors {
 	return errors
 }
 
-func (p *Parser) Execute(ctx context.Context) string {
-	session := NewSession()
+func (p *Parser) Execute(ctx context.Context, data map[string]interface{}) string {
+	session := NewSession(data)
 	p.sessions = append(p.Sessions(), session)
 	startAction := p.actions[StartNode]
 	firstAction := p.actions[startAction.OnSuccess]
