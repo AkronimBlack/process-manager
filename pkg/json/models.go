@@ -6,6 +6,7 @@ import (
 	"github.com/AkronimBlack/process-manager/shared"
 	"github.com/google/uuid"
 	"github.com/tidwall/gjson"
+	"log"
 	"strconv"
 	"sync"
 )
@@ -76,10 +77,15 @@ type Action struct {
 	OnFailure  string `json:"on_failure"`
 }
 
+type ExecutedAction struct {
+	Action
+	Params map[string]interface{}
+}
+
 type Session struct {
 	Uuid            string
 	values          map[string]interface{}
-	executedActions []*Action
+	executedActions []*ExecutedAction
 	inputData       map[string]interface{}
 	lock            sync.Mutex
 }
@@ -88,7 +94,7 @@ func NewSession(data map[string]interface{}) *Session {
 	return &Session{
 		Uuid:            uuid.NewString(),
 		values:          make(map[string]interface{}),
-		executedActions: make([]*Action, 0),
+		executedActions: make([]*ExecutedAction, 0),
 		inputData:       data,
 	}
 }
@@ -102,7 +108,7 @@ func (s *Session) ValueOf(key string) interface{} {
 }
 
 func (s *Session) StringValueOf(key string, defaultValue string) string {
-	value := gjson.Get(shared.ToJsonString(s.values), key)
+	value := gjson.Get(shared.ToJsonString(NewSessionDto(s)), key)
 	if value.Exists() {
 		return value.String()
 	}
@@ -110,7 +116,8 @@ func (s *Session) StringValueOf(key string, defaultValue string) string {
 }
 
 func (s *Session) IntValueOf(key string, defaultValue int64) int64 {
-	value := gjson.Get(shared.ToJsonString(s.values), key)
+	log.Println(shared.ToJsonPrettyString(NewSessionDto(s)))
+	value := gjson.Get(shared.ToJsonString(NewSessionDto(s)), key)
 	if value.Exists() {
 		return value.Int()
 	}

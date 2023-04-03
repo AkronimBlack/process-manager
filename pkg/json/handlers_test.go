@@ -2,7 +2,6 @@ package json
 
 import (
 	"context"
-	"log"
 	"testing"
 )
 
@@ -42,10 +41,9 @@ func TestIsGreaterHandler(t *testing.T) {
 	for _, action := range actions {
 		session := &Session{
 			values:          map[string]interface{}{},
-			executedActions: []*Action{},
+			executedActions: []*ExecutedAction{},
 		}
 		IsGreaterHandler(context.Background(), action, session)
-		log.Println(session)
 		if session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10>11, %v", session.ValueOf("test_result").(bool))
 			return
@@ -71,10 +69,9 @@ func TestIsLowerHandler(t *testing.T) {
 	for _, action := range actions {
 		session := &Session{
 			values:          map[string]interface{}{},
-			executedActions: []*Action{},
+			executedActions: []*ExecutedAction{},
 		}
 		IsLowerHandler(context.Background(), action, session)
-		log.Println(session)
 		if !session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10<11, %v", session.ValueOf("test_result").(bool))
 			return
@@ -100,10 +97,9 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 	for _, action := range actions {
 		session := &Session{
 			values:          map[string]interface{}{},
-			executedActions: []*Action{},
+			executedActions: []*ExecutedAction{},
 		}
 		IsEqualHandler(context.Background(), action, session)
-		log.Println(session)
 		if !session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10==10, %v", session.ValueOf("test_result").(bool))
 			return
@@ -128,10 +124,9 @@ func TestHttpHandler(t *testing.T) {
 	}
 	session := &Session{
 		values:          map[string]interface{}{},
-		executedActions: []*Action{},
+		executedActions: []*ExecutedAction{},
 	}
 	HttpHandler(context.Background(), action, session)
-	log.Println(session.values)
 	httpActionError := session.StringValueOf("http_action_result.error", "")
 	if httpActionError != "" {
 		t.Errorf("http action failed with error %s", httpActionError)

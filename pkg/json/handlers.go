@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -72,10 +71,19 @@ func IsGreaterHandler(ctx context.Context, action *Action, session *Session) str
 		AddActionError(session, operatorArgs.ResultVariableAsError(action.ActionType), err)
 		return action.OnFailure
 	}
+	comparing := session.PlaceholderOrIntValue(operatorArgs.Comparing)
+	compareTo := session.PlaceholderOrIntValue(operatorArgs.CompareTo)
 	session.Set(
 		operatorArgs.ResultVariable(action.ActionType),
-		session.PlaceholderOrIntValue(operatorArgs.Comparing) > session.PlaceholderOrIntValue(operatorArgs.CompareTo),
+		comparing > compareTo,
 	)
+	session.executedActions = append(session.executedActions, &ExecutedAction{
+		Action: *action,
+		Params: map[string]interface{}{
+			"comparing":  comparing,
+			"compare_to": compareTo,
+		},
+	})
 	return action.OnSuccess
 }
 
@@ -119,7 +127,6 @@ func (h HttpHandlerArgs) Method() string {
 }
 
 func HttpHandler(ctx context.Context, action *Action, session *Session) string {
-	log.Println("here")
 	httpArgs := HttpHandlerArgs{}
 	err := action.Args.Bind(&httpArgs)
 	if err != nil {
