@@ -53,8 +53,8 @@ func (a ResultArgs) ResultVariableAsError(actionType string) string {
 
 type OperatorArgs struct {
 	ResultArgs
-	Comparing int `json:"comparing"`
-	CompareTo int `json:"compare_to"`
+	Comparing string `json:"comparing"`
+	CompareTo string `json:"compare_to"`
 }
 
 func AddActionError(session *Session, variable string, err error) {

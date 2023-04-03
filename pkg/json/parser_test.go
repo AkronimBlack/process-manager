@@ -3,6 +3,7 @@ package json
 import (
 	"context"
 	"github.com/AkronimBlack/process-manager/shared"
+	"log"
 	"testing"
 )
 
@@ -187,9 +188,29 @@ func TestParser_Execute(t *testing.T) {
 		"test_id_1": {
 			ActionType: IsGreater,
 			Args: map[string]interface{}{
-				comparingKey: "10",
-				compareToKey: "11",
-				result:       "test_result",
+				comparingKey: 10,
+				compareToKey: 11,
+				result:       "test_result_1",
+			},
+			OnSuccess: "test_id_2",
+			OnFailure: "test_id_3",
+		},
+		"test_id_2": {
+			ActionType: IsLower,
+			Args: map[string]interface{}{
+				comparingKey: "{{$session.values.test_result_1}}",
+				compareToKey: 11,
+				result:       "test_result_2",
+			},
+			OnSuccess: "test_1",
+			OnFailure: "test_2",
+		},
+		"test_id_3": {
+			ActionType: IsEqual,
+			Args: map[string]interface{}{
+				comparingKey: 10,
+				compareToKey: 10,
+				result:       "test_result_3",
 			},
 			OnSuccess: "test_1",
 			OnFailure: "test_2",
@@ -198,6 +219,8 @@ func TestParser_Execute(t *testing.T) {
 	parser := Parser{
 		handlers: map[string]Handler{
 			IsGreater: IsGreaterHandler,
+			IsLower:   IsLowerHandler,
+			IsEqual:   IsEqualHandler,
 		},
 		session: &Session{
 			values:          map[string]interface{}{},
@@ -210,6 +233,7 @@ func TestParser_Execute(t *testing.T) {
 		t.Errorf("found validation errors on valid action\n%s", shared.ToJsonPrettyString(validationErrors))
 	}
 	session := parser.Execute(context.Background())
+	log.Println(session)
 	if session == nil {
 		t.Error("session is nil")
 		return

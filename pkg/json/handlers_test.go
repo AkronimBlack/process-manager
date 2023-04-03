@@ -30,8 +30,8 @@ func TestIsGreaterHandler(t *testing.T) {
 		{
 			ActionType: IsGreater,
 			Args: map[string]interface{}{
-				comparingKey: 10,
-				compareToKey: 11,
+				comparingKey: "10",
+				compareToKey: "11",
 				result:       "test_result",
 			},
 			OnSuccess: "",
@@ -45,6 +45,7 @@ func TestIsGreaterHandler(t *testing.T) {
 			executedActions: []Action{},
 		}
 		IsGreaterHandler(context.Background(), action, session)
+		log.Println(session)
 		if session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10>11, %v", session.ValueOf("test_result").(bool))
 			return
@@ -58,8 +59,8 @@ func TestIsLowerHandler(t *testing.T) {
 		{
 			ActionType: IsLower,
 			Args: map[string]interface{}{
-				comparingKey: 10,
-				compareToKey: 11,
+				comparingKey: "10",
+				compareToKey: "11",
 				result:       "test_result",
 			},
 			OnSuccess: "",
@@ -73,6 +74,7 @@ func TestIsLowerHandler(t *testing.T) {
 			executedActions: []Action{},
 		}
 		IsLowerHandler(context.Background(), action, session)
+		log.Println(session)
 		if !session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10<11, %v", session.ValueOf("test_result").(bool))
 			return
@@ -86,8 +88,8 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 		{
 			ActionType: IsEqual,
 			Args: map[string]interface{}{
-				comparingKey: 10,
-				compareToKey: 10,
+				comparingKey: "10",
+				compareToKey: "10",
 				result:       "test_result",
 			},
 			OnSuccess: "",
@@ -101,11 +103,12 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 			executedActions: []Action{},
 		}
 		IsEqualHandler(context.Background(), action, session)
+		log.Println(session)
 		if !session.ValueOf("test_result").(bool) {
-			t.Errorf("wrong evaluation of 10==11, %v", session.ValueOf("test_result").(bool))
+			t.Errorf("wrong evaluation of 10==10, %v", session.ValueOf("test_result").(bool))
 			return
 		}
-		t.Logf("correct evaluation of 10==11, %v", session.ValueOf("test_result").(bool))
+		t.Logf("correct evaluation of 10==10, %v", session.ValueOf("test_result").(bool))
 	}
 }
 
