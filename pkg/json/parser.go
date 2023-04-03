@@ -165,13 +165,13 @@ func (p *Parser) ValidateAction(action *Action) ValidationErrors {
 	return errors
 }
 
-func (p *Parser) Execute(ctx context.Context) *Session {
+func (p *Parser) Execute(ctx context.Context) string {
 	session := NewSession()
 	p.sessions = append(p.Sessions(), session)
 	startAction := p.actions[StartNode]
 	firstAction := p.actions[startAction.OnSuccess]
 	p.runAction(ctx, firstAction, session)
-	return session
+	return session.Uuid
 }
 
 func (p *Parser) runAction(ctx context.Context, action *Action, session *Session) {

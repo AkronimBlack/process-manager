@@ -10,7 +10,10 @@ import (
 	"log"
 )
 
-var router *gin.Engine
+var (
+	router             *gin.Engine
+	serverFileLocation string
+)
 
 // serverStartCmd represents the serverStart command
 var serverStartCmd = &cobra.Command{
@@ -23,11 +26,12 @@ var serverStartCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(serverStartCmd)
+	serverStartCmd.Flags().StringVarP(&serverFileLocation, "file-location", "f", "", "location of json file to parse")
 }
 
 func spinUp() {
 	router = gin.Default()
-	json.AttachHttpHandlers(router)
+	json.BuildHttp(router, serverFileLocation)
 	err := router.Run("0.0.0.0:8080")
 	if err != nil {
 		log.Panic(err)

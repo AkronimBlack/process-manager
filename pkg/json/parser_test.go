@@ -3,7 +3,6 @@ package json
 import (
 	"context"
 	"github.com/AkronimBlack/process-manager/shared"
-	"log"
 	"testing"
 )
 
@@ -229,11 +228,9 @@ func TestParser_Execute(t *testing.T) {
 	if !validationErrors.IsValid() {
 		t.Errorf("found validation errors on valid action\n%s", shared.ToJsonPrettyString(validationErrors))
 	}
-	session := parser.Execute(context.Background())
-	log.Println(session)
-	if session == nil {
-		t.Error("session is nil")
+	sessionUuid := parser.Execute(context.Background())
+	if sessionUuid == "" {
+		t.Error("session_uuid is empty")
 		return
 	}
-	t.Log(shared.ToJsonPrettyString(NewSessionDto(session)))
 }

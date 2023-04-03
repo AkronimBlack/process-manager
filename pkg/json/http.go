@@ -10,10 +10,21 @@ type ParserHttpHandler struct {
 	parser *Parser
 }
 
-func AttachHttpHandlers(router *gin.Engine) {
-	httpHandler := ParserHttpHandler{
-		parser: NewParser(),
+func NewParserHttpHandler(file string) ParserHttpHandler {
+	parser := NewParser()
+	if file != "" {
+		err := parser.LoadFile(file)
+		if err != nil {
+			panic(err)
+		}
 	}
+	return ParserHttpHandler{
+		parser: parser,
+	}
+}
+
+func BuildHttp(router *gin.Engine, file string) {
+	httpHandler := NewParserHttpHandler(file)
 	router.Group("api").
 		GET("/sessions", httpHandler.GetSessions).
 		POST("/sessions", httpHandler.StartSession)
