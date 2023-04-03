@@ -6,6 +6,10 @@ import (
 	"net/http"
 )
 
+type MessageResponse struct {
+	Message string `json:"message"`
+}
+
 type ParserHttpHandler struct {
 	parser *Parser
 }
@@ -40,5 +44,9 @@ func (p *ParserHttpHandler) GetSessions(ctx *gin.Context) {
 }
 
 func (p *ParserHttpHandler) StartSession(ctx *gin.Context) {
-	p.parser.Execute(context.Background())
+	sessionUuid := p.parser.Execute(context.Background())
+	ctx.JSON(
+		http.StatusCreated,
+		MessageResponse{Message: sessionUuid},
+	)
 }
