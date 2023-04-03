@@ -4,30 +4,32 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/AkronimBlack/process-manager/pkg/json"
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
+	"log"
 )
+
+var router *gin.Engine
 
 // serverStartCmd represents the serverStart command
 var serverStartCmd = &cobra.Command{
 	Use:   "server:start",
 	Short: "Start a process server",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("serverStart called")
+		spinUp()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(serverStartCmd)
+}
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// serverStartCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// serverStartCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func spinUp() {
+	router = gin.Default()
+	json.AttachHttpHandlers(router)
+	err := router.Run("0.0.0.0:8080")
+	if err != nil {
+		log.Panic(err)
+	}
 }

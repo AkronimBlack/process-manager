@@ -23,6 +23,21 @@ type Parser struct {
 	lock sync.Mutex
 }
 
+func NewParser() *Parser {
+	return &Parser{
+		handlers: map[string]Handler{
+			IsGreater:  IsGreaterHandler,
+			IsLower:    IsLowerHandler,
+			IsEqual:    IsEqualHandler,
+			HttpAction: HttpHandler,
+		},
+		session: &Session{
+			values:          map[string]interface{}{},
+			executedActions: []Action{},
+		},
+	}
+}
+
 func (p *Parser) SetActions(actions Actions) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
@@ -67,6 +82,10 @@ func (p *Parser) LoadFile(location string) error {
 	defer p.lock.Unlock()
 	p.actions = actions
 	return nil
+}
+
+func (p *Parser) Sessions() []*Session {
+	return []*Session{p.session}
 }
 
 type ValidateErrors map[string]ValidationErrors
