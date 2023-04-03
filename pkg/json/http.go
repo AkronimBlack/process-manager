@@ -1,6 +1,7 @@
 package json
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -14,7 +15,8 @@ func AttachHttpHandlers(router *gin.Engine) {
 		parser: NewParser(),
 	}
 	router.Group("api").
-		GET("/sessions", httpHandler.GetSessions)
+		GET("/sessions", httpHandler.GetSessions).
+		POST("/sessions", httpHandler.StartSession)
 }
 
 func (p *ParserHttpHandler) GetSessions(ctx *gin.Context) {
@@ -24,4 +26,8 @@ func (p *ParserHttpHandler) GetSessions(ctx *gin.Context) {
 		dtoSessions[i] = NewSessionDto(session)
 	}
 	ctx.JSON(http.StatusOK, dtoSessions)
+}
+
+func (p *ParserHttpHandler) StartSession(ctx *gin.Context) {
+	p.parser.Execute(context.Background())
 }

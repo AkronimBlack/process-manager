@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/AkronimBlack/process-manager/shared"
+	"github.com/google/uuid"
 	"github.com/tidwall/gjson"
 	"strconv"
 	"sync"
@@ -76,6 +77,7 @@ type Action struct {
 }
 
 type Session struct {
+	Uuid            string
 	values          map[string]interface{}
 	executedActions []*Action
 	lock            sync.Mutex
@@ -83,6 +85,7 @@ type Session struct {
 
 func NewSession() *Session {
 	return &Session{
+		Uuid:            uuid.NewString(),
 		values:          make(map[string]interface{}),
 		executedActions: make([]*Action, 0),
 	}
