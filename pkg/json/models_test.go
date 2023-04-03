@@ -1,7 +1,7 @@
 package json
 
 import (
-	"github.com/AkronimBlack/file-executor/shared"
+	"github.com/AkronimBlack/process-manager/shared"
 	"reflect"
 	"testing"
 )

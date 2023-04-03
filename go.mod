@@ -1,4 +1,4 @@
-module github.com/AkronimBlack/file-executor
+module github.com/AkronimBlack/process-manager
 
 go 1.19
 

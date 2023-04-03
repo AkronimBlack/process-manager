@@ -2,7 +2,7 @@ package json
 
 import (
 	"context"
-	"github.com/AkronimBlack/file-executor/shared"
+	"github.com/AkronimBlack/process-manager/shared"
 	"testing"
 )
 

@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/AkronimBlack/file-executor/pkg/json"
-	"github.com/AkronimBlack/file-executor/shared"
+	"github.com/AkronimBlack/process-manager/pkg/json"
+	"github.com/AkronimBlack/process-manager/shared"
 	"github.com/spf13/cobra"
 	"os"
 )

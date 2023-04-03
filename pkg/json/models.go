@@ -3,7 +3,7 @@ package json
 import (
 	"context"
 	"encoding/json"
-	"github.com/AkronimBlack/file-executor/shared"
+	"github.com/AkronimBlack/process-manager/shared"
 	"github.com/tidwall/gjson"
 	"strconv"
 	"sync"
