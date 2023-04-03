@@ -43,9 +43,14 @@ func (p *ParserHttpHandler) GetSessions(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, dtoSessions)
 }
 
+type StartSessionRequest struct {
+	Data    map[string]interface{} `json:"data"`
+	Webhook *Webhook               `json:"webhook"`
+}
+
 func (p *ParserHttpHandler) StartSession(ctx *gin.Context) {
-	var data map[string]interface{}
-	if err := ctx.BindJSON(&data); err != nil {
+	var request StartSessionRequest
+	if err := ctx.BindJSON(&request); err != nil {
 		ctx.JSON(
 			http.StatusUnprocessableEntity,
 			MessageResponse{Message: err.Error()},
@@ -53,7 +58,7 @@ func (p *ParserHttpHandler) StartSession(ctx *gin.Context) {
 		return
 	}
 
-	sessionUuid := p.parser.Execute(context.Background(), data)
+	sessionUuid := p.parser.Execute(context.Background(), request.Data, request.Webhook)
 	ctx.JSON(
 		http.StatusCreated,
 		MessageResponse{Message: sessionUuid},
