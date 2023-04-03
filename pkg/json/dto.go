@@ -12,5 +12,5 @@ func NewSessionDto(session *Session) SessionDto {
 
 type SessionDto struct {
 	Values          map[string]interface{} `json:"values"`
-	ExecutedActions []Action               `json:"executed_actions"`
+	ExecutedActions []*Action              `json:"executed_actions"`
 }

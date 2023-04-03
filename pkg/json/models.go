@@ -77,8 +77,15 @@ type Action struct {
 
 type Session struct {
 	values          map[string]interface{}
-	executedActions []Action
+	executedActions []*Action
 	lock            sync.Mutex
+}
+
+func NewSession() *Session {
+	return &Session{
+		values:          make(map[string]interface{}),
+		executedActions: make([]*Action, 0),
+	}
 }
 
 func (s *Session) ValueOf(key string) interface{} {

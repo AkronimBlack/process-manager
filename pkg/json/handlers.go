@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -118,6 +119,7 @@ func (h HttpHandlerArgs) Method() string {
 }
 
 func HttpHandler(ctx context.Context, action *Action, session *Session) string {
+	log.Println("here")
 	httpArgs := HttpHandlerArgs{}
 	err := action.Args.Bind(&httpArgs)
 	if err != nil {

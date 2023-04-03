@@ -42,7 +42,7 @@ func TestIsGreaterHandler(t *testing.T) {
 	for _, action := range actions {
 		session := &Session{
 			values:          map[string]interface{}{},
-			executedActions: []Action{},
+			executedActions: []*Action{},
 		}
 		IsGreaterHandler(context.Background(), action, session)
 		log.Println(session)
@@ -71,7 +71,7 @@ func TestIsLowerHandler(t *testing.T) {
 	for _, action := range actions {
 		session := &Session{
 			values:          map[string]interface{}{},
-			executedActions: []Action{},
+			executedActions: []*Action{},
 		}
 		IsLowerHandler(context.Background(), action, session)
 		log.Println(session)
@@ -100,7 +100,7 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 	for _, action := range actions {
 		session := &Session{
 			values:          map[string]interface{}{},
-			executedActions: []Action{},
+			executedActions: []*Action{},
 		}
 		IsEqualHandler(context.Background(), action, session)
 		log.Println(session)
@@ -128,7 +128,7 @@ func TestHttpHandler(t *testing.T) {
 	}
 	session := &Session{
 		values:          map[string]interface{}{},
-		executedActions: []Action{},
+		executedActions: []*Action{},
 	}
 	HttpHandler(context.Background(), action, session)
 	log.Println(session.values)

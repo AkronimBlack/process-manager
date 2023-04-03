@@ -18,7 +18,7 @@ type Actions map[string]*Action
 type Parser struct {
 	handlers map[string]Handler
 	actions  Actions
-	session  *Session
+	sessions []*Session
 
 	lock sync.Mutex
 }
@@ -31,10 +31,7 @@ func NewParser() *Parser {
 			IsEqual:    IsEqualHandler,
 			HttpAction: HttpHandler,
 		},
-		session: &Session{
-			values:          map[string]interface{}{},
-			executedActions: []Action{},
-		},
+		sessions: make([]*Session, 0),
 	}
 }
 
@@ -85,7 +82,7 @@ func (p *Parser) LoadFile(location string) error {
 }
 
 func (p *Parser) Sessions() []*Session {
-	return []*Session{p.session}
+	return p.sessions
 }
 
 type ValidateErrors map[string]ValidationErrors
@@ -169,25 +166,27 @@ func (p *Parser) ValidateAction(action *Action) ValidationErrors {
 }
 
 func (p *Parser) Execute(ctx context.Context) *Session {
+	session := NewSession()
+	p.sessions = append(p.Sessions(), session)
 	startAction := p.actions[StartNode]
 	firstAction := p.actions[startAction.OnSuccess]
-	p.runAction(ctx, firstAction)
-	return p.session
+	p.runAction(ctx, firstAction, session)
+	return session
 }
 
-func (p *Parser) runAction(ctx context.Context, action *Action) {
+func (p *Parser) runAction(ctx context.Context, action *Action, session *Session) {
 	handler := p.ActionHandler(action.ActionType)
 	if handler == nil {
 		return
 	}
-	next := handler(ctx, action, p.session)
+	next := handler(ctx, action, session)
 	if next == "" {
 		return
 	}
-	p.runActionById(ctx, next)
+	p.runActionById(ctx, next, session)
 }
 
-func (p *Parser) runActionById(ctx context.Context, actionId string) {
+func (p *Parser) runActionById(ctx context.Context, actionId string, session *Session) {
 	action := p.actions[actionId]
 	if action == nil {
 		return
@@ -196,5 +195,5 @@ func (p *Parser) runActionById(ctx context.Context, actionId string) {
 	if handler == nil {
 		return
 	}
-	p.runAction(ctx, action)
+	p.runAction(ctx, action, session)
 }
