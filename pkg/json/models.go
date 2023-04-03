@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/AkronimBlack/process-manager/shared"
 	"github.com/tidwall/gjson"
-	"log"
 	"strconv"
 	"sync"
 )
@@ -117,11 +116,9 @@ func (s *Session) PlaceholderOrIntValue(value interface{}) int64 {
 	switch v := value.(type) {
 	case string:
 		if IsPlaceholder(v) {
-			log.Println("Shouldnt be here")
 			return s.IntValueOf(CleanPlaceHolder(v), 0)
 		}
 		n, _ := strconv.ParseInt(v, 10, 64)
-		log.Println(n)
 		return n
 	case int:
 		return int64(v)
