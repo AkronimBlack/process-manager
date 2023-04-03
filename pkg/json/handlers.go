@@ -144,8 +144,10 @@ func HttpHandler(ctx context.Context, action *Action, session *Session) string {
 	err := action.Args.Bind(&httpArgs)
 	if err != nil {
 		AddActionError(session, httpArgs.ResultVariableAsError(action.ActionType), err)
+		session.AddExecutedAction(httpExecutedAction(*action, "", "", 0))
 		return action.OnFailure
 	}
+	session.AddExecutedAction(httpExecutedAction(*action, httpArgs.Url, httpArgs.Method(), httpArgs.Timeout))
 	_, err = url.ParseRequestURI(httpArgs.Url)
 	if err != nil {
 		AddActionError(session, httpArgs.ResultVariableAsError(action.ActionType), err)
@@ -174,4 +176,15 @@ func HttpHandler(ctx context.Context, action *Action, session *Session) string {
 		"response":    string(body),
 	})
 	return action.OnSuccess
+}
+
+func httpExecutedAction(action Action, url, method string, timeout int) *ExecutedAction {
+	return &ExecutedAction{
+		Action: action,
+		Params: map[string]interface{}{
+			"url":     url,
+			"method":  method,
+			"timeout": timeout,
+		},
+	}
 }
