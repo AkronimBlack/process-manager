@@ -2,6 +2,7 @@ package json
 
 import (
 	"context"
+	"log"
 	"testing"
 )
 
@@ -43,11 +44,7 @@ func TestIsGreaterHandler(t *testing.T) {
 			values:          map[string]interface{}{},
 			executedActions: []Action{},
 		}
-		err := IsGreaterHandler(context.Background(), action, session)
-		if err != nil {
-			t.Errorf("error while executing handler: %s", err.Error())
-			return
-		}
+		IsGreaterHandler(context.Background(), action, session)
 		if session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10>11, %v", session.ValueOf("test_result").(bool))
 			return
@@ -75,11 +72,7 @@ func TestIsLowerHandler(t *testing.T) {
 			values:          map[string]interface{}{},
 			executedActions: []Action{},
 		}
-		err := IsLowerHandler(context.Background(), action, session)
-		if err != nil {
-			t.Errorf("error while executing handler: %s", err.Error())
-			return
-		}
+		IsLowerHandler(context.Background(), action, session)
 		if !session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10<11, %v", session.ValueOf("test_result").(bool))
 			return
@@ -107,11 +100,7 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 			values:          map[string]interface{}{},
 			executedActions: []Action{},
 		}
-		err := IsEqualHandler(context.Background(), action, session)
-		if err != nil {
-			t.Errorf("error while executing handler: %s", err.Error())
-			return
-		}
+		IsEqualHandler(context.Background(), action, session)
 		if !session.ValueOf("test_result").(bool) {
 			t.Errorf("wrong evaluation of 10==11, %v", session.ValueOf("test_result").(bool))
 			return
@@ -124,7 +113,7 @@ func TestHttpHandler(t *testing.T) {
 	action := Action{
 		ActionType: HttpAction,
 		Args: map[string]interface{}{
-			"url":     "https://api.myip.com",
+			"url":     "https://docs.googleapis.com/$discovery/rest?version=v1",
 			"method":  "get",
 			"timeout": 400,
 			"headers": map[string]interface{}{},
@@ -138,11 +127,8 @@ func TestHttpHandler(t *testing.T) {
 		values:          map[string]interface{}{},
 		executedActions: []Action{},
 	}
-	err := HttpHandler(context.Background(), action, session)
-	if err != nil {
-		t.Errorf("error while executing handler: %s", err.Error())
-		return
-	}
+	HttpHandler(context.Background(), action, session)
+	log.Println(session.values)
 	httpActionError := session.StringValueOf("http_action_result.error", "")
 	if httpActionError != "" {
 		t.Errorf("http action failed with error %s", httpActionError)

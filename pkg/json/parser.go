@@ -17,10 +17,8 @@ type Actions map[string]Action
 
 type Parser struct {
 	handlers map[string]Handler
-
-	actions Actions
-
-	session *Session
+	actions  Actions
+	session  *Session
 
 	lock sync.Mutex
 }

@@ -44,49 +44,66 @@ func (a ResultArgs) ResultVariable(actionType string) string {
 	return a.Result
 }
 
+func (a ResultArgs) ResultVariableAsError(actionType string) string {
+	if a.Result == "" {
+		return fmt.Sprintf("%s.result_error", actionType)
+	}
+	return fmt.Sprintf("%s_error", a.Result)
+}
+
 type OperatorArgs struct {
 	ResultArgs
 	Comparing int `json:"comparing"`
 	CompareTo int `json:"compare_to"`
 }
 
-func IsGreaterHandler(ctx context.Context, action Action, session *Session) error {
+func AddActionError(session *Session, variable string, err error) {
+	if session == nil || variable == "" {
+		return
+	}
+	session.Set(variable, err.Error())
+}
+
+func IsGreaterHandler(ctx context.Context, action Action, session *Session) string {
 	operatorArgs := OperatorArgs{}
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
-		return err
+		AddActionError(session, operatorArgs.ResultVariableAsError(action.ActionType), err)
+		return action.OnFailure
 	}
 	session.Set(
 		operatorArgs.ResultVariable(action.ActionType),
 		session.PlaceholderOrIntValue(operatorArgs.Comparing) > session.PlaceholderOrIntValue(operatorArgs.CompareTo),
 	)
-	return nil
+	return action.OnSuccess
 }
 
-func IsLowerHandler(ctx context.Context, action Action, session *Session) error {
+func IsLowerHandler(ctx context.Context, action Action, session *Session) string {
 	operatorArgs := OperatorArgs{}
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
-		return err
+		AddActionError(session, operatorArgs.ResultVariableAsError(action.ActionType), err)
+		return action.OnFailure
 	}
 	session.Set(
 		operatorArgs.ResultVariable(action.ActionType),
 		session.PlaceholderOrIntValue(operatorArgs.Comparing) < session.PlaceholderOrIntValue(operatorArgs.CompareTo),
 	)
-	return nil
+	return action.OnSuccess
 }
 
-func IsEqualHandler(ctx context.Context, action Action, session *Session) error {
+func IsEqualHandler(ctx context.Context, action Action, session *Session) string {
 	operatorArgs := OperatorArgs{}
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
-		return err
+		AddActionError(session, operatorArgs.ResultVariableAsError(action.ActionType), err)
+		return action.OnFailure
 	}
 	session.Set(
 		operatorArgs.ResultVariable(action.ActionType),
 		session.PlaceholderOrIntValue(operatorArgs.Comparing) == session.PlaceholderOrIntValue(operatorArgs.CompareTo),
 	)
-	return nil
+	return action.OnSuccess
 }
 
 type HttpHandlerArgs struct {
@@ -100,18 +117,17 @@ func (h HttpHandlerArgs) Method() string {
 	return strings.ToUpper(h.HttpMethod)
 }
 
-func HttpHandler(ctx context.Context, action Action, session *Session) error {
+func HttpHandler(ctx context.Context, action Action, session *Session) string {
 	httpArgs := HttpHandlerArgs{}
 	err := action.Args.Bind(&httpArgs)
 	if err != nil {
-		return err
+		AddActionError(session, httpArgs.ResultVariableAsError(action.ActionType), err)
+		return action.OnFailure
 	}
 	_, err = url.ParseRequestURI(httpArgs.Url)
 	if err != nil {
-		session.Set(httpArgs.ResultVariable(action.ActionType), map[string]interface{}{
-			"error": err.Error(),
-		})
-		return err
+		AddActionError(session, httpArgs.ResultVariableAsError(action.ActionType), err)
+		return action.OnFailure
 	}
 
 	var req *http.Request
@@ -122,22 +138,18 @@ func HttpHandler(ctx context.Context, action Action, session *Session) error {
 	defer cancel()
 	resp, err := client.Do(req.WithContext(ctx))
 	if err != nil {
-		session.Set(httpArgs.ResultVariable(action.ActionType), map[string]interface{}{
-			"error": err.Error(),
-		})
-		return err
+		AddActionError(session, httpArgs.ResultVariableAsError(action.ActionType), err)
+		return action.OnFailure
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		session.Set(httpArgs.ResultVariable(action.ActionType), map[string]interface{}{
-			"error": err.Error(),
-		})
-		return err
+		AddActionError(session, httpArgs.ResultVariableAsError(action.ActionType), err)
+		return action.OnFailure
 	}
 	session.Set(httpArgs.ResultVariable(action.ActionType), map[string]interface{}{
 		"status":      resp.Status,
 		"status_code": resp.StatusCode,
 		"response":    string(body),
 	})
-	return nil
+	return action.OnSuccess
 }

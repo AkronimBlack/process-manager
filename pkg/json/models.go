@@ -9,7 +9,8 @@ import (
 	"sync"
 )
 
-type Handler func(ctx context.Context, action Action, session *Session) error
+// Handler interface. Expects id of next action to execute. Returning empty string finished the process execution
+type Handler func(ctx context.Context, action Action, session *Session) string
 
 type Args map[string]interface{}
 
