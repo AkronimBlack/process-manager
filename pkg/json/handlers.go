@@ -64,7 +64,7 @@ func AddActionError(session *Session, variable string, err error) {
 	session.Set(variable, err.Error())
 }
 
-func IsGreaterHandler(ctx context.Context, action Action, session *Session) string {
+func IsGreaterHandler(ctx context.Context, action *Action, session *Session) string {
 	operatorArgs := OperatorArgs{}
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
@@ -78,7 +78,7 @@ func IsGreaterHandler(ctx context.Context, action Action, session *Session) stri
 	return action.OnSuccess
 }
 
-func IsLowerHandler(ctx context.Context, action Action, session *Session) string {
+func IsLowerHandler(ctx context.Context, action *Action, session *Session) string {
 	operatorArgs := OperatorArgs{}
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
@@ -92,7 +92,7 @@ func IsLowerHandler(ctx context.Context, action Action, session *Session) string
 	return action.OnSuccess
 }
 
-func IsEqualHandler(ctx context.Context, action Action, session *Session) string {
+func IsEqualHandler(ctx context.Context, action *Action, session *Session) string {
 	operatorArgs := OperatorArgs{}
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
@@ -117,7 +117,7 @@ func (h HttpHandlerArgs) Method() string {
 	return strings.ToUpper(h.HttpMethod)
 }
 
-func HttpHandler(ctx context.Context, action Action, session *Session) string {
+func HttpHandler(ctx context.Context, action *Action, session *Session) string {
 	httpArgs := HttpHandlerArgs{}
 	err := action.Args.Bind(&httpArgs)
 	if err != nil {

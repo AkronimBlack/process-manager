@@ -13,7 +13,7 @@ const (
 	StartNode = "start_node"
 )
 
-type Actions map[string]Action
+type Actions map[string]*Action
 
 type Parser struct {
 	handlers map[string]Handler
@@ -31,7 +31,7 @@ func (p *Parser) SetActions(actions Actions) {
 
 func (p *Parser) Actions() Actions {
 	if p.actions == nil {
-		return map[string]Action{}
+		return map[string]*Action{}
 	}
 	return p.actions
 }
@@ -128,7 +128,7 @@ func (e ValidationErrors) IsValid() bool {
 	return false
 }
 
-func (p *Parser) ValidateAction(action Action) ValidationErrors {
+func (p *Parser) ValidateAction(action *Action) ValidationErrors {
 	errors := make(ValidationErrors, 0)
 	if action.ActionType == StartNode {
 		if action.OnSuccess == "" {
@@ -152,10 +152,30 @@ func (p *Parser) ValidateAction(action Action) ValidationErrors {
 func (p *Parser) Execute(ctx context.Context) *Session {
 	startAction := p.actions[StartNode]
 	firstAction := p.actions[startAction.OnSuccess]
-	handler := p.ActionHandler(firstAction.ActionType)
-	if handler == nil {
-		return nil
-	}
-	handler(ctx, firstAction, p.session)
+	p.runAction(ctx, firstAction)
 	return p.session
+}
+
+func (p *Parser) runAction(ctx context.Context, action *Action) {
+	handler := p.ActionHandler(action.ActionType)
+	if handler == nil {
+		return
+	}
+	next := handler(ctx, action, p.session)
+	if next == "" {
+		return
+	}
+	p.runActionById(ctx, next)
+}
+
+func (p *Parser) runActionById(ctx context.Context, actionId string) {
+	action := p.actions[actionId]
+	if action == nil {
+		return
+	}
+	handler := p.ActionHandler(action.ActionType)
+	if handler == nil {
+		return
+	}
+	p.runAction(ctx, action)
 }

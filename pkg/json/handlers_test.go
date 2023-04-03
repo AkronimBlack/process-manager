@@ -26,7 +26,7 @@ func TestCleanPlaceHolder(t *testing.T) {
 }
 
 func TestIsGreaterHandler(t *testing.T) {
-	actions := []Action{
+	actions := []*Action{
 		{
 			ActionType: IsGreater,
 			Args: map[string]interface{}{
@@ -54,7 +54,7 @@ func TestIsGreaterHandler(t *testing.T) {
 }
 
 func TestIsLowerHandler(t *testing.T) {
-	actions := []Action{
+	actions := []*Action{
 		{
 			ActionType: IsLower,
 			Args: map[string]interface{}{
@@ -82,7 +82,7 @@ func TestIsLowerHandler(t *testing.T) {
 }
 
 func TestIsEqualHandlerHandler(t *testing.T) {
-	actions := []Action{
+	actions := []*Action{
 		{
 			ActionType: IsEqual,
 			Args: map[string]interface{}{
@@ -110,12 +110,12 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 }
 
 func TestHttpHandler(t *testing.T) {
-	action := Action{
+	action := &Action{
 		ActionType: HttpAction,
 		Args: map[string]interface{}{
 			"url":     "https://docs.googleapis.com/$discovery/rest?version=v1",
 			"method":  "get",
-			"timeout": 400,
+			"timeout": 500,
 			"headers": map[string]interface{}{},
 			"payload": map[string]interface{}{},
 			result:    "http_action_result",

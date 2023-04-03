@@ -38,7 +38,7 @@ func TestParser_LoadFileFailsToLoadNonExistingFile(t *testing.T) {
 
 func TestParser_ValidateAction(t *testing.T) {
 	parser := Parser{}
-	validationErrors := parser.ValidateAction(Action{
+	validationErrors := parser.ValidateAction(&Action{
 		ActionType: "sum",
 		Args:       map[string]interface{}{},
 		OnSuccess:  "test_id",
@@ -50,7 +50,7 @@ func TestParser_ValidateAction(t *testing.T) {
 }
 
 func TestParser_ValidateActionReturnsErrorsOnInvalidAction(t *testing.T) {
-	actions := []Action{
+	actions := []*Action{
 		{
 			ActionType: "",
 			Args:       map[string]interface{}{},
@@ -81,7 +81,7 @@ func TestParser_ValidateActionReturnsErrorsOnInvalidAction(t *testing.T) {
 }
 
 func TestParser_validate(t *testing.T) {
-	actions := map[string]Action{
+	actions := map[string]*Action{
 		StartNode: {
 			ActionType: StartNode,
 			OnSuccess:  "test_id_1",
@@ -113,7 +113,7 @@ func TestParser_validate(t *testing.T) {
 }
 
 func TestParser_validateReturnsErrorsOnInvalidAction(t *testing.T) {
-	actions := map[string]Action{
+	actions := map[string]*Action{
 		StartNode: {
 			ActionType: StartNode,
 			OnSuccess:  "test_id_1",
@@ -146,7 +146,7 @@ func TestParser_validateReturnsErrorsOnInvalidAction(t *testing.T) {
 }
 
 func TestParser_Validate(t *testing.T) {
-	actions := map[string]Action{
+	actions := map[string]*Action{
 		StartNode: {
 			ActionType: StartNode,
 			OnSuccess:  "test_id_1",
@@ -179,7 +179,7 @@ func TestParser_Validate(t *testing.T) {
 }
 
 func TestParser_Execute(t *testing.T) {
-	actions := map[string]Action{
+	actions := map[string]*Action{
 		StartNode: {
 			ActionType: StartNode,
 			OnSuccess:  "test_id_1",
