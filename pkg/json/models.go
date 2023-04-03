@@ -99,6 +99,12 @@ func NewSession(data map[string]interface{}) *Session {
 	}
 }
 
+func (s *Session) AddExecutedAction(action *ExecutedAction) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.executedActions = append(s.executedActions, action)
+}
+
 func (s *Session) ValueOf(key string) interface{} {
 	value := gjson.Get(shared.ToJsonString(s.values), key)
 	if value.Exists() {

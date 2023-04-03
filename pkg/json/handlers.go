@@ -69,6 +69,7 @@ func IsGreaterHandler(ctx context.Context, action *Action, session *Session) str
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
 		AddActionError(session, operatorArgs.ResultVariableAsError(action.ActionType), err)
+		session.AddExecutedAction(operatorExecutedAction(*action, 0, 0))
 		return action.OnFailure
 	}
 	comparing := session.PlaceholderOrIntValue(operatorArgs.Comparing)
@@ -77,14 +78,18 @@ func IsGreaterHandler(ctx context.Context, action *Action, session *Session) str
 		operatorArgs.ResultVariable(action.ActionType),
 		comparing > compareTo,
 	)
-	session.executedActions = append(session.executedActions, &ExecutedAction{
-		Action: *action,
+	session.AddExecutedAction(operatorExecutedAction(*action, comparing, compareTo))
+	return action.OnSuccess
+}
+
+func operatorExecutedAction(action Action, comparing, compareTo int64) *ExecutedAction {
+	return &ExecutedAction{
+		Action: action,
 		Params: map[string]interface{}{
 			"comparing":  comparing,
 			"compare_to": compareTo,
 		},
-	})
-	return action.OnSuccess
+	}
 }
 
 func IsLowerHandler(ctx context.Context, action *Action, session *Session) string {
@@ -92,12 +97,16 @@ func IsLowerHandler(ctx context.Context, action *Action, session *Session) strin
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
 		AddActionError(session, operatorArgs.ResultVariableAsError(action.ActionType), err)
+		session.AddExecutedAction(operatorExecutedAction(*action, 0, 0))
 		return action.OnFailure
 	}
+	comparing := session.PlaceholderOrIntValue(operatorArgs.Comparing)
+	compareTo := session.PlaceholderOrIntValue(operatorArgs.CompareTo)
 	session.Set(
 		operatorArgs.ResultVariable(action.ActionType),
-		session.PlaceholderOrIntValue(operatorArgs.Comparing) < session.PlaceholderOrIntValue(operatorArgs.CompareTo),
+		comparing < compareTo,
 	)
+	session.AddExecutedAction(operatorExecutedAction(*action, comparing, compareTo))
 	return action.OnSuccess
 }
 
@@ -106,12 +115,16 @@ func IsEqualHandler(ctx context.Context, action *Action, session *Session) strin
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
 		AddActionError(session, operatorArgs.ResultVariableAsError(action.ActionType), err)
+		session.AddExecutedAction(operatorExecutedAction(*action, 0, 0))
 		return action.OnFailure
 	}
+	comparing := session.PlaceholderOrIntValue(operatorArgs.Comparing)
+	compareTo := session.PlaceholderOrIntValue(operatorArgs.CompareTo)
 	session.Set(
 		operatorArgs.ResultVariable(action.ActionType),
-		session.PlaceholderOrIntValue(operatorArgs.Comparing) == session.PlaceholderOrIntValue(operatorArgs.CompareTo),
+		comparing == compareTo,
 	)
+	session.AddExecutedAction(operatorExecutedAction(*action, comparing, compareTo))
 	return action.OnSuccess
 }
 
