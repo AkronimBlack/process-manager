@@ -1,0 +1,17 @@
+version: '3.5'
+
+services:
+  process-manager:
+    container_name: process-manager
+    build: ./
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+    networks:
+      - process_manager
+    entrypoint: ./process-manager server:start -f start.json
+
+networks:
+  process_manager:
+    name: 'process_manager'
