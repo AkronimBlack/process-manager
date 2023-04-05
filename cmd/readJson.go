@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/AkronimBlack/process-manager/pkg/json"
+	"github.com/AkronimBlack/process-manager/pkg/parser"
 	"github.com/AkronimBlack/process-manager/shared"
 	"github.com/spf13/cobra"
 	"os"
@@ -14,10 +14,10 @@ var (
 
 // readJsonCmd represents the readJson command
 var readJsonCmd = &cobra.Command{
-	Use:   "read:json",
+	Use:   "read:parser",
 	Short: "A brief description of your command",
 	Run: func(cmd *cobra.Command, args []string) {
-		parser := json.Parser{}
+		parser := parser.Parser{}
 		err := parser.LoadFile(fileLocation)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -34,5 +34,5 @@ var readJsonCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(readJsonCmd)
-	readJsonCmd.Flags().StringVarP(&fileLocation, "file-location", "f", "", "location of json file to parse")
+	readJsonCmd.Flags().StringVarP(&fileLocation, "file-location", "f", "", "location of parser file to parse")
 }

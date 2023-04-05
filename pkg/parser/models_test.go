@@ -1,4 +1,4 @@
-package json
+package parser
 
 import (
 	"github.com/AkronimBlack/process-manager/shared"

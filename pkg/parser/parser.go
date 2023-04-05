@@ -1,4 +1,4 @@
-package json
+package parser
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/AkronimBlack/process-manager/shared"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -222,6 +223,7 @@ func (p *Parser) Execute(ctx context.Context, data map[string]interface{}, webho
 }
 
 func (p *Parser) runAction(ctx context.Context, action *Action, session *Session) {
+	log.Print(action)
 	handler := p.ActionHandler(action.ActionType)
 	if handler == nil {
 		p.runWebhook(session)

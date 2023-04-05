@@ -5,29 +5,26 @@
     "on_success": "test_id_1"
   },
   "test_id_1": {
-    "type": "sum",
+    "type": "is_greater",
     "args": {
-      "arg_1": [
-        {
-          "sub_arg_1": "value"
-        }
-      ]
+      "comparing": "{{input_data.comparing}}",
+      "compare_to": "{{input_data.compare_to}}"
     },
     "on_success": "test_id_2",
     "on_failure": "test_id_3"
   },
   "test_id_2": {
-    "type": "subtract",
+    "type": "is_lower",
     "args": {
-      "arg_2": "value 2"
+      "comparing": "10",
+      "compare_to": "10"
     }
   },
   "test_id_3": {
-    "type": "multiply",
+    "type": "is_equal",
     "args": {
-      "arg_3": {
-        "sub_arg_3": "value 3"
-      }
+      "comparing": "10",
+      "compare_to": "10"
     }
   }
 }

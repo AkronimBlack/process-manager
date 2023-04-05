@@ -4,7 +4,7 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/AkronimBlack/process-manager/pkg/json"
+	"github.com/AkronimBlack/process-manager/pkg/parser"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"log"
@@ -31,7 +31,7 @@ func init() {
 
 func spinUp() {
 	router = gin.Default()
-	json.BuildHttp(router, serverFileLocation)
+	parser.BuildHttp(router, serverFileLocation)
 	err := router.Run("0.0.0.0:8080")
 	if err != nil {
 		log.Panic(err)

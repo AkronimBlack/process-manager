@@ -1,4 +1,4 @@
-package json
+package parser
 
 func NewSessionDto(session *Session) SessionDto {
 	if session == nil {
