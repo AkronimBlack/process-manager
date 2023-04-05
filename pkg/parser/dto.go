@@ -1,16 +1,16 @@
 package parser
 
-func NewSessionDto(session *Session) SessionDto {
+func NewSessionDto(session Session) SessionDto {
 	if session == nil {
 		return SessionDto{}
 	}
 	return SessionDto{
-		Uuid:                    session.Uuid,
-		Values:                  session.values,
-		ExecutedActions:         NewExecutedActionsDto(session.executedActions),
-		InputData:               session.inputData,
-		OnFinishWebhook:         NewOnFinishWebhookDto(session.OnFinishWebhook),
-		OnFinishWebhookResponse: session.OnFinishWebhookResponse,
+		Uuid:                    session.Uuid(),
+		Values:                  session.Values(),
+		ExecutedActions:         NewExecutedActionsDto(session.ExecutedActions()),
+		InputData:               session.InputData(),
+		OnFinishWebhook:         NewOnFinishWebhookDto(session.OnFinishWebhook()),
+		OnFinishWebhookResponse: session.OnFinishWebhookResponse(),
 	}
 }
 

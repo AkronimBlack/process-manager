@@ -24,7 +24,7 @@ type Actions map[string]*Action
 type Parser struct {
 	handlers map[string]Handler
 	actions  Actions
-	sessions []*Session
+	sessions []Session
 
 	lock sync.Mutex
 }
@@ -37,22 +37,20 @@ func NewParser() *Parser {
 			IsEqual:    IsEqualHandler,
 			HttpAction: HttpHandler,
 		},
-		sessions: make([]*Session, 0),
+		sessions: make([]Session, 0),
 	}
 }
 
-func (p *Parser) runWebhook(session *Session) {
-	if session.OnFinishWebhook == nil {
-		session.OnFinishWebhookResponse = map[string]interface{}{
-			"error": "no webhook configured",
-		}
+func (p *Parser) runWebhook(session Session) {
+	if session.OnFinishWebhook() == nil {
+		session.OnFinishWebhookResponse()
 		return
 	}
-	req, err := http.NewRequest(http.MethodPost, session.OnFinishWebhook.Url, bytes.NewBuffer(shared.ToJsonByte(session)))
+	req, err := http.NewRequest(http.MethodPost, session.OnFinishWebhook().Url, bytes.NewBuffer(shared.ToJsonByte(session)))
 	if err != nil {
-		session.OnFinishWebhookResponse = map[string]interface{}{
+		session.SetOnFinishWebhookResponse(map[string]interface{}{
 			"error": err.Error(),
-		}
+		})
 		return
 	}
 	client := &http.Client{}
@@ -61,26 +59,26 @@ func (p *Parser) runWebhook(session *Session) {
 	defer cancel()
 	resp, err := client.Do(req.WithContext(ctx))
 	if err != nil {
-		session.OnFinishWebhookResponse = map[string]interface{}{
+		session.SetOnFinishWebhookResponse(map[string]interface{}{
 			"error": err.Error(),
-		}
+		})
 		return
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		session.OnFinishWebhookResponse = map[string]interface{}{
+		session.SetOnFinishWebhookResponse(map[string]interface{}{
 			"status":      resp.Status,
 			"status_code": resp.StatusCode,
 			"error":       err.Error(),
-		}
+		})
 		return
 	}
-	session.OnFinishWebhookResponse = map[string]interface{}{
+	session.SetOnFinishWebhookResponse(map[string]interface{}{
 		"status":      resp.Status,
 		"status_code": resp.StatusCode,
 		"response":    string(body),
-	}
+	})
 }
 
 func (p *Parser) SetActions(actions Actions) {
@@ -129,7 +127,7 @@ func (p *Parser) LoadFile(location string) error {
 	return nil
 }
 
-func (p *Parser) Sessions() []*Session {
+func (p *Parser) Sessions() []Session {
 	return p.sessions
 }
 
@@ -214,15 +212,15 @@ func (p *Parser) ValidateAction(action *Action) ValidationErrors {
 }
 
 func (p *Parser) Execute(ctx context.Context, data map[string]interface{}, webhook *Webhook) string {
-	session := NewSession(data, webhook)
-	p.sessions = append(p.Sessions(), session)
+	newSession := NewSession(data, webhook)
+	p.sessions = append(p.Sessions(), newSession)
 	startAction := p.actions[StartNode]
 	firstAction := p.actions[startAction.OnSuccess]
-	go p.runAction(ctx, firstAction, session)
-	return session.Uuid
+	go p.runAction(ctx, firstAction, newSession)
+	return newSession.Uuid()
 }
 
-func (p *Parser) runAction(ctx context.Context, action *Action, session *Session) {
+func (p *Parser) runAction(ctx context.Context, action *Action, session Session) {
 	log.Print(action)
 	handler := p.ActionHandler(action.ActionType)
 	if handler == nil {
@@ -237,7 +235,7 @@ func (p *Parser) runAction(ctx context.Context, action *Action, session *Session
 	p.runActionById(ctx, next, session)
 }
 
-func (p *Parser) runActionById(ctx context.Context, actionId string, session *Session) {
+func (p *Parser) runActionById(ctx context.Context, actionId string, session Session) {
 	action := p.actions[actionId]
 	if action == nil {
 		p.runWebhook(session)

@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/AkronimBlack/process-manager/shared"
 	"github.com/google/uuid"
@@ -10,15 +9,6 @@ import (
 	"strconv"
 	"sync"
 )
-
-// Handler interface. Expects id of next action to execute. Returning empty string finished the process execution
-type Handler func(ctx context.Context, action *Action, session *Session) string
-
-type Args map[string]interface{}
-
-func (a Args) Get(key string) interface{} {
-	return a[key]
-}
 
 func (a Args) GetString(key string, defaultValue ...string) string {
 	if defaultValue == nil || len(defaultValue) == 0 {
@@ -86,34 +76,66 @@ type Webhook struct {
 	Url string `json:"url"`
 }
 
-type Session struct {
-	Uuid                    string
+type session struct {
+	uuid                    string
 	values                  map[string]interface{}
 	executedActions         []*ExecutedAction
 	inputData               map[string]interface{}
-	OnFinishWebhook         *Webhook `json:"on_finish_webhook"`
-	OnFinishWebhookResponse map[string]interface{}
+	onFinishWebhook         *Webhook
+	onFinishWebhookResponse map[string]interface{}
 
 	lock sync.Mutex
 }
 
-func NewSession(data map[string]interface{}, webhook *Webhook) *Session {
-	return &Session{
-		Uuid:            uuid.NewString(),
+func (s *session) SetOnFinishWebhook(onFinishWebhook *Webhook) {
+	s.onFinishWebhook = onFinishWebhook
+}
+
+func (s *session) SetOnFinishWebhookResponse(onFinishWebhookResponse map[string]interface{}) {
+	s.onFinishWebhookResponse = onFinishWebhookResponse
+}
+
+func (s *session) Uuid() string {
+	return s.uuid
+}
+
+func (s *session) Values() map[string]interface{} {
+	return s.values
+}
+
+func (s *session) ExecutedActions() []*ExecutedAction {
+	return s.executedActions
+}
+
+func (s *session) InputData() map[string]interface{} {
+	return s.inputData
+}
+
+func (s *session) OnFinishWebhook() *Webhook {
+	return s.onFinishWebhook
+}
+
+func (s *session) OnFinishWebhookResponse() map[string]interface{} {
+	return s.onFinishWebhookResponse
+}
+
+func NewSession(data map[string]interface{}, webhook *Webhook) Session {
+	return &session{
+		uuid:            uuid.NewString(),
 		values:          make(map[string]interface{}),
 		executedActions: make([]*ExecutedAction, 0),
-		OnFinishWebhook: webhook,
+		onFinishWebhook: webhook,
 		inputData:       data,
 	}
 }
 
-func (s *Session) AddExecutedAction(action *ExecutedAction) {
+func (s *session) AddExecutedAction(action *ExecutedAction) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.executedActions = append(s.executedActions, action)
 }
 
-func (s *Session) ValueOf(key string) interface{} {
+func (s *session) ValueOf(key string) interface{} {
 	value := gjson.Get(shared.ToJsonString(s.values), key)
 	if value.Exists() {
 		return value.Value()
@@ -121,7 +143,7 @@ func (s *Session) ValueOf(key string) interface{} {
 	return nil
 }
 
-func (s *Session) StringValueOf(key string, defaultValue string) string {
+func (s *session) StringValueOf(key string, defaultValue string) string {
 	value := gjson.Get(shared.ToJsonString(NewSessionDto(s)), key)
 	if value.Exists() {
 		return value.String()
@@ -129,7 +151,7 @@ func (s *Session) StringValueOf(key string, defaultValue string) string {
 	return defaultValue
 }
 
-func (s *Session) IntValueOf(key string, defaultValue int64) int64 {
+func (s *session) IntValueOf(key string, defaultValue int64) int64 {
 	log.Println(shared.ToJsonPrettyString(NewSessionDto(s)))
 	value := gjson.Get(shared.ToJsonString(NewSessionDto(s)), key)
 	if value.Exists() {
@@ -138,14 +160,14 @@ func (s *Session) IntValueOf(key string, defaultValue int64) int64 {
 	return defaultValue
 }
 
-func (s *Session) PlaceholderOrStringValue(value string) string {
+func (s *session) PlaceholderOrStringValue(value string) string {
 	if IsPlaceholder(value) {
 		return s.StringValueOf(CleanPlaceHolder(value), value)
 	}
 	return value
 }
 
-func (s *Session) PlaceholderOrIntValue(value interface{}) int64 {
+func (s *session) PlaceholderOrIntValue(value interface{}) int64 {
 	switch v := value.(type) {
 	case string:
 		if IsPlaceholder(v) {
@@ -159,7 +181,7 @@ func (s *Session) PlaceholderOrIntValue(value interface{}) int64 {
 	return 0
 }
 
-func (s *Session) Set(key string, value interface{}) {
+func (s *session) Set(key string, value interface{}) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.values[key] = value
