@@ -82,21 +82,35 @@ type ExecutedAction struct {
 	Params map[string]interface{}
 }
 
-type Session struct {
-	Uuid            string
-	values          map[string]interface{}
-	executedActions []*ExecutedAction
-	inputData       map[string]interface{}
-	lock            sync.Mutex
+type Webhook struct {
+	Url string `json:"url"`
 }
 
-func NewSession(data map[string]interface{}) *Session {
+type Session struct {
+	Uuid                    string
+	values                  map[string]interface{}
+	executedActions         []*ExecutedAction
+	inputData               map[string]interface{}
+	OnFinishWebhook         *Webhook `json:"on_finish_webhook"`
+	OnFinishWebhookResponse map[string]interface{}
+
+	lock sync.Mutex
+}
+
+func NewSession(data map[string]interface{}, webhook *Webhook) *Session {
 	return &Session{
 		Uuid:            uuid.NewString(),
 		values:          make(map[string]interface{}),
 		executedActions: make([]*ExecutedAction, 0),
+		OnFinishWebhook: webhook,
 		inputData:       data,
 	}
+}
+
+func (s *Session) AddExecutedAction(action *ExecutedAction) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.executedActions = append(s.executedActions, action)
 }
 
 func (s *Session) ValueOf(key string) interface{} {

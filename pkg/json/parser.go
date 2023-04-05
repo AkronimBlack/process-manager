@@ -1,12 +1,17 @@
 package json
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/AkronimBlack/process-manager/shared"
+	"io"
+	"net/http"
 	"os"
 	"path"
 	"sync"
+	"time"
 )
 
 const (
@@ -32,6 +37,48 @@ func NewParser() *Parser {
 			HttpAction: HttpHandler,
 		},
 		sessions: make([]*Session, 0),
+	}
+}
+
+func (p *Parser) runWebhook(session *Session) {
+	if session.OnFinishWebhook == nil {
+		session.OnFinishWebhookResponse = map[string]interface{}{
+			"error": "no webhook configured",
+		}
+		return
+	}
+	req, err := http.NewRequest(http.MethodPost, session.OnFinishWebhook.Url, bytes.NewBuffer(shared.ToJsonByte(session)))
+	if err != nil {
+		session.OnFinishWebhookResponse = map[string]interface{}{
+			"error": err.Error(),
+		}
+		return
+	}
+	client := &http.Client{}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	resp, err := client.Do(req.WithContext(ctx))
+	if err != nil {
+		session.OnFinishWebhookResponse = map[string]interface{}{
+			"error": err.Error(),
+		}
+		return
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		session.OnFinishWebhookResponse = map[string]interface{}{
+			"status":      resp.Status,
+			"status_code": resp.StatusCode,
+			"error":       err.Error(),
+		}
+		return
+	}
+	session.OnFinishWebhookResponse = map[string]interface{}{
+		"status":      resp.Status,
+		"status_code": resp.StatusCode,
+		"response":    string(body),
 	}
 }
 
@@ -165,22 +212,24 @@ func (p *Parser) ValidateAction(action *Action) ValidationErrors {
 	return errors
 }
 
-func (p *Parser) Execute(ctx context.Context, data map[string]interface{}) string {
-	session := NewSession(data)
+func (p *Parser) Execute(ctx context.Context, data map[string]interface{}, webhook *Webhook) string {
+	session := NewSession(data, webhook)
 	p.sessions = append(p.Sessions(), session)
 	startAction := p.actions[StartNode]
 	firstAction := p.actions[startAction.OnSuccess]
-	p.runAction(ctx, firstAction, session)
+	go p.runAction(ctx, firstAction, session)
 	return session.Uuid
 }
 
 func (p *Parser) runAction(ctx context.Context, action *Action, session *Session) {
 	handler := p.ActionHandler(action.ActionType)
 	if handler == nil {
+		p.runWebhook(session)
 		return
 	}
 	next := handler(ctx, action, session)
 	if next == "" {
+		p.runWebhook(session)
 		return
 	}
 	p.runActionById(ctx, next, session)
@@ -189,10 +238,7 @@ func (p *Parser) runAction(ctx context.Context, action *Action, session *Session
 func (p *Parser) runActionById(ctx context.Context, actionId string, session *Session) {
 	action := p.actions[actionId]
 	if action == nil {
-		return
-	}
-	handler := p.ActionHandler(action.ActionType)
-	if handler == nil {
+		p.runWebhook(session)
 		return
 	}
 	p.runAction(ctx, action, session)

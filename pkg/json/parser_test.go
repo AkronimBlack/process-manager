@@ -231,7 +231,7 @@ func TestParser_Execute(t *testing.T) {
 	data := map[string]interface{}{
 		"data": "data",
 	}
-	sessionUuid := parser.Execute(context.Background(), data)
+	sessionUuid := parser.Execute(context.Background(), data, nil)
 	if sessionUuid == "" {
 		t.Error("session_uuid is empty")
 		return
