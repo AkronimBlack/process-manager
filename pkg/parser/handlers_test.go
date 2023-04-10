@@ -134,3 +134,29 @@ func TestHttpHandler(t *testing.T) {
 		t.Error("http action result empty")
 	}
 }
+
+func TestTaskHandler(t *testing.T) {
+	action := &Action{
+		ActionType: TaskAction,
+		Args: map[string]interface{}{
+			"name": "test task",
+			result: "task_action_result",
+		},
+		OnSuccess: "test_1",
+		OnFailure: "test_2",
+	}
+	session := NewSession(map[string]interface{}{}, nil)
+	TaskHandler(context.Background(), action, session)
+	httpActionError := session.StringValueOf("task_action_result.error", "")
+	if httpActionError != "" {
+		t.Errorf("task action failed with error %s", httpActionError)
+		return
+	}
+	httpResult := session.ValueOf("task_action_result")
+	if httpResult == nil {
+		t.Error("task action result empty")
+	}
+	if len(session.Tasks()) == 0 {
+		t.Error("no task generated")
+	}
+}

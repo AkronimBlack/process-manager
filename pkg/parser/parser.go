@@ -36,6 +36,7 @@ func NewParser() *Parser {
 			IsLower:    IsLowerHandler,
 			IsEqual:    IsEqualHandler,
 			HttpAction: HttpHandler,
+			TaskAction: TaskHandler,
 		},
 		sessions: make([]Session, 0),
 	}

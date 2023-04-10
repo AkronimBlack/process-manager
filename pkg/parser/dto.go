@@ -11,6 +11,7 @@ func NewSessionDto(session Session) SessionDto {
 		InputData:               session.InputData(),
 		OnFinishWebhook:         NewOnFinishWebhookDto(session.OnFinishWebhook()),
 		OnFinishWebhookResponse: session.OnFinishWebhookResponse(),
+		Tasks:                   NewTasksDto(session.Tasks()),
 	}
 }
 
@@ -20,7 +21,8 @@ type SessionDto struct {
 	ExecutedActions         []ExecutedActionDto    `json:"executed_actions"`
 	InputData               map[string]interface{} `json:"input_data"`
 	OnFinishWebhook         *OnFinishWebhook       `json:"on_finish_webhook"`
-	OnFinishWebhookResponse map[string]interface{} `json:"on_finish_webhook_response,omitempty"`
+	OnFinishWebhookResponse map[string]interface{} `json:"on_finish_webhook_response"`
+	Tasks                   []TaskDto              `json:"tasks"`
 }
 
 func NewOnFinishWebhookDto(onFinishWebhook Webhook) *OnFinishWebhook {
@@ -60,4 +62,24 @@ type ExecutedActionDto struct {
 	OnSuccess  string `json:"on_success"`
 	OnFailure  string `json:"on_failure"`
 	Params     map[string]interface{}
+}
+
+func NewTasksDto(tasks []Task) []TaskDto {
+	tasksDto := make([]TaskDto, len(tasks))
+	for i, v := range tasks {
+		tasksDto[i] = NewTaskDto(v)
+	}
+	return tasksDto
+}
+
+func NewTaskDto(task Task) TaskDto {
+	return TaskDto{
+		Next:       task.Next(),
+		Parameters: task.Parameters(),
+	}
+}
+
+type TaskDto struct {
+	Next       string                 `json:"next"`
+	Parameters map[string]interface{} `json:"parameters"`
 }

@@ -27,6 +27,8 @@ type Session interface {
 	ValueOf(key string) interface{}
 	StringValueOf(key string, defaultValue string) string
 	IntValueOf(key string, defaultValue int64) int64
+	Tasks() []Task
+	AddTask(task Task)
 }
 
 type ExecutedAction interface {
@@ -39,4 +41,10 @@ type ExecutedAction interface {
 
 type Webhook interface {
 	Url() string
+}
+
+type Task interface {
+	Name() string
+	Next() string
+	Parameters() map[string]interface{}
 }

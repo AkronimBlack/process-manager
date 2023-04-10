@@ -15,6 +15,7 @@ const (
 	IsLower    = "is_lower"
 	IsEqual    = "is_equal"
 	HttpAction = "http"
+	TaskAction = "task"
 
 	comparingKey = "comparing"
 	compareToKey = "compare_to"
@@ -185,6 +186,41 @@ func httpExecutedAction(action Action, url, method string, timeout int) *execute
 			"url":     url,
 			"method":  method,
 			"timeout": timeout,
+		},
+	}
+}
+
+type TaskArgs struct {
+	ResultArgs
+	TaskName   string                 `json:"task_name"`
+	Parameters map[string]interface{} `json:"parameters"`
+	Next       string                 `json:"next"`
+}
+
+func TaskHandler(ctx context.Context, action *Action, session Session) string {
+	taskArgs := TaskArgs{}
+	err := action.Args.Bind(&taskArgs)
+	if err != nil {
+		AddActionError(session, taskArgs.ResultVariableAsError(action.ActionType), err)
+		session.AddExecutedAction(taskExecutedAction(*action, taskArgs.TaskName, taskArgs.Parameters))
+		return action.OnFailure
+	}
+
+	session.AddTask(NewTask(taskArgs.TaskName, taskArgs.Next, taskArgs.Parameters))
+	session.Set(
+		taskArgs.ResultVariable(action.ActionType),
+		"task_generated",
+	)
+	session.AddExecutedAction(taskExecutedAction(*action, taskArgs.TaskName, taskArgs.Parameters))
+	return action.OnSuccess
+}
+
+func taskExecutedAction(action Action, name string, parameters map[string]interface{}) *executedAction {
+	return &executedAction{
+		Action: action,
+		Params: map[string]interface{}{
+			"name":       name,
+			"parameters": parameters,
 		},
 	}
 }

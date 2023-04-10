@@ -109,10 +109,15 @@ type session struct {
 	values                  map[string]interface{}
 	executedActions         []ExecutedAction
 	inputData               map[string]interface{}
+	tasks                   []Task
 	onFinishWebhook         Webhook
 	onFinishWebhookResponse map[string]interface{}
 
 	lock sync.Mutex
+}
+
+func (s *session) Tasks() []Task {
+	return s.tasks
 }
 
 func (s *session) SetOnFinishWebhook(onFinishWebhook Webhook) {
@@ -152,9 +157,16 @@ func NewSession(data map[string]interface{}, webhook Webhook) Session {
 		uuid:            uuid.NewString(),
 		values:          make(map[string]interface{}),
 		executedActions: make([]ExecutedAction, 0),
+		tasks:           make([]Task, 0),
 		onFinishWebhook: webhook,
 		inputData:       data,
 	}
+}
+
+func (s *session) AddTask(task Task) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.tasks = append(s.tasks, task)
 }
 
 func (s *session) AddExecutedAction(action ExecutedAction) {
@@ -213,4 +225,26 @@ func (s *session) Set(key string, value interface{}) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.values[key] = value
+}
+
+type task struct {
+	name       string
+	next       string
+	parameters map[string]interface{}
+}
+
+func NewTask(name, next string, parameters map[string]interface{}) Task {
+	return &task{name: name, next: next, parameters: parameters}
+}
+
+func (t task) Name() string {
+	return t.name
+}
+
+func (t task) Next() string {
+	return t.next
+}
+
+func (t task) Parameters() map[string]interface{} {
+	return t.parameters
 }
