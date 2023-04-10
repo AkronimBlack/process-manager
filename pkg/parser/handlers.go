@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -192,7 +193,7 @@ func httpExecutedAction(action Action, url, method string, timeout int) *execute
 
 type TaskArgs struct {
 	ResultArgs
-	TaskName   string                 `json:"task_name"`
+	TaskName   string                 `json:"name"`
 	Parameters map[string]interface{} `json:"parameters"`
 	Next       string                 `json:"next"`
 }
@@ -200,6 +201,7 @@ type TaskArgs struct {
 func TaskHandler(ctx context.Context, action *Action, session Session) string {
 	taskArgs := TaskArgs{}
 	err := action.Args.Bind(&taskArgs)
+	log.Print("TEST: ", taskArgs)
 	if err != nil {
 		AddActionError(session, taskArgs.ResultVariableAsError(action.ActionType), err)
 		session.AddExecutedAction(taskExecutedAction(*action, taskArgs.TaskName, taskArgs.Parameters))
