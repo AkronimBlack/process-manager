@@ -23,12 +23,12 @@ type SessionDto struct {
 	OnFinishWebhookResponse map[string]interface{} `json:"on_finish_webhook_response,omitempty"`
 }
 
-func NewOnFinishWebhookDto(onFinishWebhook *Webhook) *OnFinishWebhook {
+func NewOnFinishWebhookDto(onFinishWebhook Webhook) *OnFinishWebhook {
 	if onFinishWebhook == nil {
 		return nil
 	}
 	return &OnFinishWebhook{
-		Url: onFinishWebhook.Url,
+		Url: onFinishWebhook.Url(),
 	}
 }
 
@@ -36,7 +36,7 @@ type OnFinishWebhook struct {
 	Url string `json:"url"`
 }
 
-func NewExecutedActionsDto(executedActions []*ExecutedAction) []ExecutedActionDto {
+func NewExecutedActionsDto(executedActions []ExecutedAction) []ExecutedActionDto {
 	values := make([]ExecutedActionDto, len(executedActions))
 	for i, v := range executedActions {
 		values[i] = NewExecutedActionDto(v)
@@ -44,13 +44,13 @@ func NewExecutedActionsDto(executedActions []*ExecutedAction) []ExecutedActionDt
 	return values
 }
 
-func NewExecutedActionDto(executedAction *ExecutedAction) ExecutedActionDto {
+func NewExecutedActionDto(executedAction ExecutedAction) ExecutedActionDto {
 	return ExecutedActionDto{
-		ActionType: executedAction.ActionType,
-		Args:       executedAction.Args,
-		OnSuccess:  executedAction.OnSuccess,
-		OnFailure:  executedAction.OnFailure,
-		Params:     executedAction.Params,
+		ActionType: executedAction.Type(),
+		Args:       executedAction.Arguments(),
+		OnSuccess:  executedAction.OnSuccess(),
+		OnFailure:  executedAction.OnFailure(),
+		Params:     executedAction.Parameters(),
 	}
 }
 

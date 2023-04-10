@@ -14,17 +14,29 @@ func (a Args) Get(key string) interface{} {
 type Session interface {
 	Uuid() string
 	Values() map[string]interface{}
-	ExecutedActions() []*ExecutedAction
+	ExecutedActions() []ExecutedAction
 	InputData() map[string]interface{}
 	Set(key string, value interface{})
-	AddExecutedAction(action *ExecutedAction)
-	OnFinishWebhook() *Webhook
+	AddExecutedAction(action ExecutedAction)
+	OnFinishWebhook() Webhook
 	OnFinishWebhookResponse() map[string]interface{}
-	SetOnFinishWebhook(onFinishWebhook *Webhook)
+	SetOnFinishWebhook(onFinishWebhook Webhook)
 	SetOnFinishWebhookResponse(onFinishWebhookResponse map[string]interface{})
 	PlaceholderOrStringValue(value string) string
 	PlaceholderOrIntValue(value interface{}) int64
 	ValueOf(key string) interface{}
 	StringValueOf(key string, defaultValue string) string
 	IntValueOf(key string, defaultValue int64) int64
+}
+
+type ExecutedAction interface {
+	Type() string
+	Arguments() Args
+	OnSuccess() string
+	OnFailure() string
+	Parameters() map[string]interface{}
+}
+
+type Webhook interface {
+	Url() string
 }

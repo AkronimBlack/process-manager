@@ -44,8 +44,12 @@ func (p *ParserHttpHandler) GetSessions(ctx *gin.Context) {
 }
 
 type StartSessionRequest struct {
-	Data    map[string]interface{} `json:"data"`
-	Webhook *Webhook               `json:"webhook"`
+	Data    map[string]interface{}     `json:"data"`
+	Webhook StartSessionWebhookRequest `json:"webhook"`
+}
+
+type StartSessionWebhookRequest struct {
+	Url string `json:"url"`
 }
 
 func (p *ParserHttpHandler) StartSession(ctx *gin.Context) {
@@ -58,7 +62,7 @@ func (p *ParserHttpHandler) StartSession(ctx *gin.Context) {
 		return
 	}
 
-	sessionUuid := p.parser.Execute(context.Background(), request.Data, request.Webhook)
+	sessionUuid := p.parser.Execute(context.Background(), request.Data, NewWebHook(request.Webhook.Url))
 	ctx.JSON(
 		http.StatusCreated,
 		MessageResponse{Message: sessionUuid},

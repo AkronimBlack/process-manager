@@ -46,7 +46,7 @@ func (p *Parser) runWebhook(session Session) {
 		session.OnFinishWebhookResponse()
 		return
 	}
-	req, err := http.NewRequest(http.MethodPost, session.OnFinishWebhook().Url, bytes.NewBuffer(shared.ToJsonByte(session)))
+	req, err := http.NewRequest(http.MethodPost, session.OnFinishWebhook().Url(), bytes.NewBuffer(shared.ToJsonByte(session)))
 	if err != nil {
 		session.SetOnFinishWebhookResponse(map[string]interface{}{
 			"error": err.Error(),
@@ -211,7 +211,7 @@ func (p *Parser) ValidateAction(action *Action) ValidationErrors {
 	return errors
 }
 
-func (p *Parser) Execute(ctx context.Context, data map[string]interface{}, webhook *Webhook) string {
+func (p *Parser) Execute(ctx context.Context, data map[string]interface{}, webhook Webhook) string {
 	newSession := NewSession(data, webhook)
 	p.sessions = append(p.Sessions(), newSession)
 	startAction := p.actions[StartNode]

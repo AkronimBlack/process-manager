@@ -67,27 +67,55 @@ type Action struct {
 	OnFailure  string `json:"on_failure"`
 }
 
-type ExecutedAction struct {
+type executedAction struct {
 	Action
 	Params map[string]interface{}
 }
 
-type Webhook struct {
-	Url string `json:"url"`
+func (e executedAction) Type() string {
+	return e.ActionType
+}
+
+func (e executedAction) Arguments() Args {
+	return e.Args
+}
+
+func (e executedAction) OnSuccess() string {
+	return e.Action.OnSuccess
+}
+
+func (e executedAction) OnFailure() string {
+	return e.Action.OnFailure
+}
+
+func (e executedAction) Parameters() map[string]interface{} {
+	return e.Params
+}
+
+type webHook struct {
+	url string
+}
+
+func NewWebHook(url string) Webhook {
+	return &webHook{url: url}
+}
+
+func (w webHook) Url() string {
+	return w.url
 }
 
 type session struct {
 	uuid                    string
 	values                  map[string]interface{}
-	executedActions         []*ExecutedAction
+	executedActions         []ExecutedAction
 	inputData               map[string]interface{}
-	onFinishWebhook         *Webhook
+	onFinishWebhook         Webhook
 	onFinishWebhookResponse map[string]interface{}
 
 	lock sync.Mutex
 }
 
-func (s *session) SetOnFinishWebhook(onFinishWebhook *Webhook) {
+func (s *session) SetOnFinishWebhook(onFinishWebhook Webhook) {
 	s.onFinishWebhook = onFinishWebhook
 }
 
@@ -103,7 +131,7 @@ func (s *session) Values() map[string]interface{} {
 	return s.values
 }
 
-func (s *session) ExecutedActions() []*ExecutedAction {
+func (s *session) ExecutedActions() []ExecutedAction {
 	return s.executedActions
 }
 
@@ -111,7 +139,7 @@ func (s *session) InputData() map[string]interface{} {
 	return s.inputData
 }
 
-func (s *session) OnFinishWebhook() *Webhook {
+func (s *session) OnFinishWebhook() Webhook {
 	return s.onFinishWebhook
 }
 
@@ -119,17 +147,17 @@ func (s *session) OnFinishWebhookResponse() map[string]interface{} {
 	return s.onFinishWebhookResponse
 }
 
-func NewSession(data map[string]interface{}, webhook *Webhook) Session {
+func NewSession(data map[string]interface{}, webhook Webhook) Session {
 	return &session{
 		uuid:            uuid.NewString(),
 		values:          make(map[string]interface{}),
-		executedActions: make([]*ExecutedAction, 0),
+		executedActions: make([]ExecutedAction, 0),
 		onFinishWebhook: webhook,
 		inputData:       data,
 	}
 }
 
-func (s *session) AddExecutedAction(action *ExecutedAction) {
+func (s *session) AddExecutedAction(action ExecutedAction) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.executedActions = append(s.executedActions, action)

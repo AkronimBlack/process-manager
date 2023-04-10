@@ -82,8 +82,8 @@ func IsGreaterHandler(ctx context.Context, action *Action, session Session) stri
 	return action.OnSuccess
 }
 
-func operatorExecutedAction(action Action, comparing, compareTo int64) *ExecutedAction {
-	return &ExecutedAction{
+func operatorExecutedAction(action Action, comparing, compareTo int64) *executedAction {
+	return &executedAction{
 		Action: action,
 		Params: map[string]interface{}{
 			"comparing":  comparing,
@@ -178,8 +178,8 @@ func HttpHandler(ctx context.Context, action *Action, session Session) string {
 	return action.OnSuccess
 }
 
-func httpExecutedAction(action Action, url, method string, timeout int) *ExecutedAction {
-	return &ExecutedAction{
+func httpExecutedAction(action Action, url, method string, timeout int) *executedAction {
+	return &executedAction{
 		Action: action,
 		Params: map[string]interface{}{
 			"url":     url,
