@@ -57,14 +57,14 @@ type OperatorArgs struct {
 	CompareTo string `json:"compare_to"`
 }
 
-func AddActionError(session *Session, variable string, err error) {
+func AddActionError(session Session, variable string, err error) {
 	if session == nil || variable == "" {
 		return
 	}
 	session.Set(variable, err.Error())
 }
 
-func IsGreaterHandler(ctx context.Context, action *Action, session *Session) string {
+func IsGreaterHandler(ctx context.Context, action *Action, session Session) string {
 	operatorArgs := OperatorArgs{}
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
@@ -82,8 +82,8 @@ func IsGreaterHandler(ctx context.Context, action *Action, session *Session) str
 	return action.OnSuccess
 }
 
-func operatorExecutedAction(action Action, comparing, compareTo int64) *ExecutedAction {
-	return &ExecutedAction{
+func operatorExecutedAction(action Action, comparing, compareTo int64) *executedAction {
+	return &executedAction{
 		Action: action,
 		Params: map[string]interface{}{
 			"comparing":  comparing,
@@ -92,7 +92,7 @@ func operatorExecutedAction(action Action, comparing, compareTo int64) *Executed
 	}
 }
 
-func IsLowerHandler(ctx context.Context, action *Action, session *Session) string {
+func IsLowerHandler(ctx context.Context, action *Action, session Session) string {
 	operatorArgs := OperatorArgs{}
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
@@ -110,7 +110,7 @@ func IsLowerHandler(ctx context.Context, action *Action, session *Session) strin
 	return action.OnSuccess
 }
 
-func IsEqualHandler(ctx context.Context, action *Action, session *Session) string {
+func IsEqualHandler(ctx context.Context, action *Action, session Session) string {
 	operatorArgs := OperatorArgs{}
 	err := action.Args.Bind(&operatorArgs)
 	if err != nil {
@@ -139,7 +139,7 @@ func (h HttpHandlerArgs) Method() string {
 	return strings.ToUpper(h.HttpMethod)
 }
 
-func HttpHandler(ctx context.Context, action *Action, session *Session) string {
+func HttpHandler(ctx context.Context, action *Action, session Session) string {
 	httpArgs := HttpHandlerArgs{}
 	err := action.Args.Bind(&httpArgs)
 	if err != nil {
@@ -178,8 +178,8 @@ func HttpHandler(ctx context.Context, action *Action, session *Session) string {
 	return action.OnSuccess
 }
 
-func httpExecutedAction(action Action, url, method string, timeout int) *ExecutedAction {
-	return &ExecutedAction{
+func httpExecutedAction(action Action, url, method string, timeout int) *executedAction {
+	return &executedAction{
 		Action: action,
 		Params: map[string]interface{}{
 			"url":     url,

@@ -221,7 +221,7 @@ func TestParser_Execute(t *testing.T) {
 			IsLower:   IsLowerHandler,
 			IsEqual:   IsEqualHandler,
 		},
-		sessions: make([]*Session, 0),
+		sessions: make([]Session, 0),
 	}
 	parser.SetActions(actions)
 	validationErrors := parser.Validate()

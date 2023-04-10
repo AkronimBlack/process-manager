@@ -39,9 +39,9 @@ func TestIsGreaterHandler(t *testing.T) {
 	}
 
 	for _, action := range actions {
-		session := &Session{
+		session := &session{
 			values:          map[string]interface{}{},
-			executedActions: []*ExecutedAction{},
+			executedActions: []ExecutedAction{},
 		}
 		IsGreaterHandler(context.Background(), action, session)
 		if session.ValueOf("test_result").(bool) {
@@ -67,9 +67,9 @@ func TestIsLowerHandler(t *testing.T) {
 	}
 
 	for _, action := range actions {
-		session := &Session{
+		session := &session{
 			values:          map[string]interface{}{},
-			executedActions: []*ExecutedAction{},
+			executedActions: []ExecutedAction{},
 		}
 		IsLowerHandler(context.Background(), action, session)
 		if !session.ValueOf("test_result").(bool) {
@@ -95,9 +95,9 @@ func TestIsEqualHandlerHandler(t *testing.T) {
 	}
 
 	for _, action := range actions {
-		session := &Session{
+		session := &session{
 			values:          map[string]interface{}{},
-			executedActions: []*ExecutedAction{},
+			executedActions: []ExecutedAction{},
 		}
 		IsEqualHandler(context.Background(), action, session)
 		if !session.ValueOf("test_result").(bool) {
@@ -122,10 +122,7 @@ func TestHttpHandler(t *testing.T) {
 		OnSuccess: "test_1",
 		OnFailure: "test_2",
 	}
-	session := &Session{
-		values:          map[string]interface{}{},
-		executedActions: []*ExecutedAction{},
-	}
+	session := NewSession(map[string]interface{}{}, nil)
 	HttpHandler(context.Background(), action, session)
 	httpActionError := session.StringValueOf("http_action_result.error", "")
 	if httpActionError != "" {
