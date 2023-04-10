@@ -74,12 +74,14 @@ func NewTasksDto(tasks []Task) []TaskDto {
 
 func NewTaskDto(task Task) TaskDto {
 	return TaskDto{
+		Name:       task.Name(),
 		Next:       task.Next(),
 		Parameters: task.Parameters(),
 	}
 }
 
 type TaskDto struct {
+	Name       string                 `json:"name"`
 	Next       string                 `json:"next"`
 	Parameters map[string]interface{} `json:"parameters"`
 }
