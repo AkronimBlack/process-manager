@@ -116,6 +116,10 @@ type session struct {
 	lock sync.Mutex
 }
 
+func (s *session) SetInputData(inputData map[string]interface{}) {
+	s.inputData = inputData
+}
+
 func (s *session) Tasks() []Task {
 	return s.tasks
 }
@@ -150,6 +154,16 @@ func (s *session) OnFinishWebhook() Webhook {
 
 func (s *session) OnFinishWebhookResponse() map[string]interface{} {
 	return s.onFinishWebhookResponse
+}
+
+func (s *session) UpdateData(parameters map[string]interface{}) {
+	if s.InputData() == nil {
+		s.SetInputData(parameters)
+		return
+	}
+	for k, v := range s.InputData() {
+		s.Set(k, v)
+	}
 }
 
 func NewSession(data map[string]interface{}, webhook Webhook) Session {
@@ -232,10 +246,11 @@ type task struct {
 	name       string
 	next       string
 	parameters map[string]interface{}
+	session    Session
 }
 
-func NewTask(id, name, next string, parameters map[string]interface{}) Task {
-	return &task{id: id, name: name, next: next, parameters: parameters}
+func NewTask(id, name, next string, parameters map[string]interface{}, session Session) Task {
+	return &task{id: id, name: name, next: next, parameters: parameters, session: session}
 }
 
 func (t task) ID() string {
@@ -252,4 +267,12 @@ func (t task) Next() string {
 
 func (t task) Parameters() map[string]interface{} {
 	return t.parameters
+}
+
+func (t task) Execute(parameters map[string]interface{}) {
+	t.Session().UpdateData(parameters)
+}
+
+func (t task) Session() Session {
+	return t.session
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -202,14 +201,13 @@ type TaskArgs struct {
 func TaskHandler(ctx context.Context, action *Action, session Session) string {
 	taskArgs := TaskArgs{}
 	err := action.Args.Bind(&taskArgs)
-	log.Print("TEST: ", taskArgs)
 	if err != nil {
 		AddActionError(session, taskArgs.ResultVariableAsError(action.ActionType), err)
 		session.AddExecutedAction(taskExecutedAction(*action, taskArgs.TaskName, taskArgs.Parameters))
 		return action.OnFailure
 	}
 
-	session.AddTask(NewTask(taskArgs.ID, taskArgs.TaskName, taskArgs.Next, taskArgs.Parameters))
+	session.AddTask(NewTask(taskArgs.ID, taskArgs.TaskName, taskArgs.Next, taskArgs.Parameters, session))
 	session.Set(
 		taskArgs.ResultVariable(action.ActionType),
 		"task_generated",

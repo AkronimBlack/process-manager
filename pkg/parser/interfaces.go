@@ -16,6 +16,7 @@ type Session interface {
 	Values() map[string]interface{}
 	ExecutedActions() []ExecutedAction
 	InputData() map[string]interface{}
+	SetInputData(inputData map[string]interface{})
 	Set(key string, value interface{})
 	AddExecutedAction(action ExecutedAction)
 	OnFinishWebhook() Webhook
@@ -29,6 +30,7 @@ type Session interface {
 	IntValueOf(key string, defaultValue int64) int64
 	Tasks() []Task
 	AddTask(task Task)
+	UpdateData(parameters map[string]interface{})
 }
 
 type ExecutedAction interface {
@@ -48,4 +50,6 @@ type Task interface {
 	Name() string
 	Next() string
 	Parameters() map[string]interface{}
+	Execute(parameters map[string]interface{})
+	Session() Session
 }
