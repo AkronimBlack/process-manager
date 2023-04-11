@@ -228,13 +228,18 @@ func (s *session) Set(key string, value interface{}) {
 }
 
 type task struct {
+	id         string
 	name       string
 	next       string
 	parameters map[string]interface{}
 }
 
-func NewTask(name, next string, parameters map[string]interface{}) Task {
-	return &task{name: name, next: next, parameters: parameters}
+func NewTask(id, name, next string, parameters map[string]interface{}) Task {
+	return &task{id: id, name: name, next: next, parameters: parameters}
+}
+
+func (t task) ID() string {
+	return t.id
 }
 
 func (t task) Name() string {

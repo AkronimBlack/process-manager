@@ -193,6 +193,7 @@ func httpExecutedAction(action Action, url, method string, timeout int) *execute
 
 type TaskArgs struct {
 	ResultArgs
+	ID         string                 `json:"id"`
 	TaskName   string                 `json:"name"`
 	Parameters map[string]interface{} `json:"parameters"`
 	Next       string                 `json:"next"`
@@ -208,7 +209,7 @@ func TaskHandler(ctx context.Context, action *Action, session Session) string {
 		return action.OnFailure
 	}
 
-	session.AddTask(NewTask(taskArgs.TaskName, taskArgs.Next, taskArgs.Parameters))
+	session.AddTask(NewTask(taskArgs.ID, taskArgs.TaskName, taskArgs.Next, taskArgs.Parameters))
 	session.Set(
 		taskArgs.ResultVariable(action.ActionType),
 		"task_generated",

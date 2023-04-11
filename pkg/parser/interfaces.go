@@ -44,6 +44,7 @@ type Webhook interface {
 }
 
 type Task interface {
+	ID() string
 	Name() string
 	Next() string
 	Parameters() map[string]interface{}

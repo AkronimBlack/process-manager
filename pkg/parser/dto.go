@@ -74,6 +74,7 @@ func NewTasksDto(tasks []Task) []TaskDto {
 
 func NewTaskDto(task Task) TaskDto {
 	return TaskDto{
+		ID:         task.ID(),
 		Name:       task.Name(),
 		Next:       task.Next(),
 		Parameters: task.Parameters(),
@@ -81,6 +82,7 @@ func NewTaskDto(task Task) TaskDto {
 }
 
 type TaskDto struct {
+	ID         string                 `json:"ID"`
 	Name       string                 `json:"name"`
 	Next       string                 `json:"next"`
 	Parameters map[string]interface{} `json:"parameters"`
