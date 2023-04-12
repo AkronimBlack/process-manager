@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/AkronimBlack/process-manager/shared"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path"
@@ -132,6 +131,15 @@ func (p *Parser) Sessions() []Session {
 	return p.sessions
 }
 
+func (p *Parser) Session(id string) Session {
+	for _, activeSession := range p.Sessions() {
+		if activeSession.Uuid() == id {
+			return activeSession
+		}
+	}
+	return nil
+}
+
 type ValidateErrors map[string]ValidationErrors
 
 func (e ValidateErrors) IsValid() bool {
@@ -222,7 +230,6 @@ func (p *Parser) Execute(ctx context.Context, data map[string]interface{}, webho
 }
 
 func (p *Parser) runAction(ctx context.Context, action *Action, session Session) {
-	log.Print(action)
 	handler := p.ActionHandler(action.ActionType)
 	if handler == nil {
 		p.runWebhook(session)

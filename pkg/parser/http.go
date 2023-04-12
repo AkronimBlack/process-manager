@@ -31,7 +31,9 @@ func BuildHttp(router *gin.Engine, file string) {
 	httpHandler := NewParserHttpHandler(file)
 	router.Group("api").
 		GET("/sessions", httpHandler.GetSessions).
-		POST("/sessions", httpHandler.StartSession)
+		GET("/sessions/:id", httpHandler.Session).
+		POST("/sessions", httpHandler.StartSession).
+		GET("/sessions/:id/tasks", httpHandler.Tasks)
 }
 
 func (p *ParserHttpHandler) GetSessions(ctx *gin.Context) {
@@ -67,4 +69,22 @@ func (p *ParserHttpHandler) StartSession(ctx *gin.Context) {
 		http.StatusCreated,
 		MessageResponse{Message: sessionUuid},
 	)
+}
+
+func (p *ParserHttpHandler) Session(ctx *gin.Context) {
+	activeSession := p.parser.Session(ctx.Param("id"))
+	if activeSession == nil {
+		ctx.JSON(http.StatusNotFound, nil)
+		return
+	}
+	ctx.JSON(http.StatusOK, NewSessionDto(activeSession))
+}
+
+func (p *ParserHttpHandler) Tasks(ctx *gin.Context) {
+	activeSession := p.parser.Session(ctx.Param("id"))
+	if activeSession == nil {
+		ctx.JSON(http.StatusNotFound, nil)
+		return
+	}
+	ctx.JSON(http.StatusOK, NewTasksDto(activeSession.Tasks()))
 }

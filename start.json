@@ -2,7 +2,7 @@
   "start_node": {
     "type": "start_node",
     "args": {},
-    "on_success": "task_id_1"
+    "on_success": "c53727ca-f2b3-42ab-bd6b-c7ea01c8305e"
   },
   "c53727ca-f2b3-42ab-bd6b-c7ea01c8305e": {
     "type": "task",
