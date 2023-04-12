@@ -64,6 +64,9 @@ func (p *ParserHttpHandler) StartSession(ctx *gin.Context) {
 		)
 		return
 	}
+	if request.Data == nil {
+		request.Data = map[string]interface{}{}
+	}
 
 	sessionUuid := p.parser.Execute(context.Background(), request.Data, NewWebHook(request.Webhook.Url))
 	ctx.JSON(
