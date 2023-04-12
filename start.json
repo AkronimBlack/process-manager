@@ -2,9 +2,45 @@
   "start_node": {
     "type": "start_node",
     "args": {},
-    "on_success": "test_id_1"
+    "on_success": "c53727ca-f2b3-42ab-bd6b-c7ea01c8305e"
   },
-  "test_id_1": {
+  "c53727ca-f2b3-42ab-bd6b-c7ea01c8305e": {
+    "type": "task",
+    "args": {
+      "id": "592c659d-5ef9-4f69-87ac-ed8d8a901c66",
+      "name": "test",
+      "parameters": {
+        "testing": "test"
+      }
+    },
+    "on_success": "test_id_2",
+    "on_failure": "test_id_3"
+  },
+  "09f50bff-004d-4a7b-b6ec-2bbc85cef3b4": {
+    "type": "task",
+    "args": {
+      "id": "c2690e8e-28c0-434d-bdf0-1bb5420bd49a",
+      "name": "test",
+      "parameters": {
+        "testing": "test"
+      }
+    },
+    "on_success": "test_id_2",
+    "on_failure": "test_id_3"
+  },
+  "25cfc32d-488e-4eff-a773-24ea186fdc32": {
+    "type": "task",
+    "args": {
+      "id": "eeb45ced-db70-492d-bf74-52789d16289e",
+      "name": "test",
+      "parameters": {
+        "testing": "test"
+      }
+    },
+    "on_success": "test_id_2",
+    "on_failure": "test_id_3"
+  },
+  "e7083091-58ed-49c3-a207-836d7b67157b": {
     "type": "is_greater",
     "args": {
       "comparing": "{{input_data.comparing}}",
@@ -13,14 +49,14 @@
     "on_success": "test_id_2",
     "on_failure": "test_id_3"
   },
-  "test_id_2": {
+  "7b39b31e-678c-4908-b8d9-2c37a8a06d38": {
     "type": "is_lower",
     "args": {
       "comparing": "10",
       "compare_to": "10"
     }
   },
-  "test_id_3": {
+  "77e2ac12-55b3-42f8-86f5-72f529a6d29d": {
     "type": "is_equal",
     "args": {
       "comparing": "10",

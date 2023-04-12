@@ -109,10 +109,19 @@ type session struct {
 	values                  map[string]interface{}
 	executedActions         []ExecutedAction
 	inputData               map[string]interface{}
+	tasks                   []Task
 	onFinishWebhook         Webhook
 	onFinishWebhookResponse map[string]interface{}
 
 	lock sync.Mutex
+}
+
+func (s *session) SetInputData(inputData map[string]interface{}) {
+	s.inputData = inputData
+}
+
+func (s *session) Tasks() []Task {
+	return s.tasks
 }
 
 func (s *session) SetOnFinishWebhook(onFinishWebhook Webhook) {
@@ -147,14 +156,31 @@ func (s *session) OnFinishWebhookResponse() map[string]interface{} {
 	return s.onFinishWebhookResponse
 }
 
+func (s *session) UpdateData(parameters map[string]interface{}) {
+	if s.InputData() == nil {
+		s.SetInputData(parameters)
+		return
+	}
+	for k, v := range s.InputData() {
+		s.Set(k, v)
+	}
+}
+
 func NewSession(data map[string]interface{}, webhook Webhook) Session {
 	return &session{
 		uuid:            uuid.NewString(),
 		values:          make(map[string]interface{}),
 		executedActions: make([]ExecutedAction, 0),
+		tasks:           make([]Task, 0),
 		onFinishWebhook: webhook,
 		inputData:       data,
 	}
+}
+
+func (s *session) AddTask(task Task) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.tasks = append(s.tasks, task)
 }
 
 func (s *session) AddExecutedAction(action ExecutedAction) {
@@ -195,6 +221,15 @@ func (s *session) PlaceholderOrStringValue(value string) string {
 	return value
 }
 
+func (s *session) Task(id string) Task {
+	for _, activeTasks := range s.Tasks() {
+		if activeTasks.ID() == id {
+			return activeTasks
+		}
+	}
+	return nil
+}
+
 func (s *session) PlaceholderOrIntValue(value interface{}) int64 {
 	switch v := value.(type) {
 	case string:
@@ -213,4 +248,40 @@ func (s *session) Set(key string, value interface{}) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	s.values[key] = value
+}
+
+type task struct {
+	id         string
+	name       string
+	next       string
+	parameters map[string]interface{}
+	session    Session
+}
+
+func NewTask(id, name, next string, parameters map[string]interface{}, session Session) Task {
+	return &task{id: id, name: name, next: next, parameters: parameters, session: session}
+}
+
+func (t task) ID() string {
+	return t.id
+}
+
+func (t task) Name() string {
+	return t.name
+}
+
+func (t task) Next() string {
+	return t.next
+}
+
+func (t task) Parameters() map[string]interface{} {
+	return t.parameters
+}
+
+func (t task) Execute(parameters map[string]interface{}) {
+	t.Session().UpdateData(parameters)
+}
+
+func (t task) Session() Session {
+	return t.session
 }
