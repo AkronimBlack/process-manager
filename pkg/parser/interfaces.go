@@ -29,6 +29,7 @@ type Session interface {
 	StringValueOf(key string, defaultValue string) string
 	IntValueOf(key string, defaultValue int64) int64
 	Tasks() []Task
+	Task(id string) Task
 	AddTask(task Task)
 	UpdateData(parameters map[string]interface{})
 }

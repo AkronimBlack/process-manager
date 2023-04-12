@@ -33,14 +33,15 @@ func BuildHttp(router *gin.Engine, file string) {
 		GET("/sessions", httpHandler.GetSessions).
 		GET("/sessions/:id", httpHandler.Session).
 		POST("/sessions", httpHandler.StartSession).
-		GET("/sessions/:id/tasks", httpHandler.Tasks)
+		GET("/sessions/:id/tasks", httpHandler.Tasks).
+		POST("/sessions/:id/tasks/:task_id", httpHandler.CompleteTask)
 }
 
 func (p *ParserHttpHandler) GetSessions(ctx *gin.Context) {
 	sessions := p.parser.Sessions()
 	dtoSessions := make([]SessionDto, len(sessions))
-	for i, session := range sessions {
-		dtoSessions[i] = NewSessionDto(session)
+	for i, activeSession := range sessions {
+		dtoSessions[i] = NewSessionDto(activeSession)
 	}
 	ctx.JSON(http.StatusOK, dtoSessions)
 }
@@ -87,4 +88,27 @@ func (p *ParserHttpHandler) Tasks(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, NewTasksDto(activeSession.Tasks()))
+}
+
+func (p *ParserHttpHandler) CompleteTask(ctx *gin.Context) {
+	activeSession := p.parser.Session(ctx.Param("id"))
+	if activeSession == nil {
+		ctx.JSON(http.StatusNotFound, nil)
+		return
+	}
+	activeTask := activeSession.Task(ctx.Param("task_id"))
+	if activeTask == nil {
+		ctx.JSON(http.StatusNotFound, nil)
+		return
+	}
+	var payload map[string]interface{}
+	err := ctx.ShouldBind(&payload)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, map[string]interface{}{
+			"error": err.Error(),
+		})
+		return
+	}
+	activeTask.Execute(payload)
+	ctx.JSON(http.StatusOK, NewTaskDto(activeTask))
 }

@@ -221,6 +221,15 @@ func (s *session) PlaceholderOrStringValue(value string) string {
 	return value
 }
 
+func (s *session) Task(id string) Task {
+	for _, activeTasks := range s.Tasks() {
+		if activeTasks.ID() == id {
+			return activeTasks
+		}
+	}
+	return nil
+}
+
 func (s *session) PlaceholderOrIntValue(value interface{}) int64 {
 	switch v := value.(type) {
 	case string:
